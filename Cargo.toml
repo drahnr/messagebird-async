@@ -10,7 +10,7 @@ categories = ["asynchronous", "api-bindings"]
 
 [dependencies]
 hyper = "^0.12.9"
-datetime = "^0.4.7"
+chrono = "0.4"
 url = "^1.7.1"
 serde = "1.0"
 serde_derive = "1.0"

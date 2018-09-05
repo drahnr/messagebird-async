@@ -35,7 +35,38 @@ impl Recipients {
     pub fn iter(&mut self) -> Iter<Recipient> {
         self.items.iter()
     }
-    pub fn add(&mut self, recipient : Recipient) {
+    pub fn add(&mut self, recipient: Recipient) {
         self.items.push(recipient)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    static RAW: &str = r#"
+  "recipients":{
+    "totalCount":1,
+    "totalSentCount":1,
+    "totalDeliveredCount":0,
+    "totalDeliveryFailedCount":0,
+    "items":[
+      {
+        "recipient":31612345678,
+        "status":"sent",
+        "statusDatetime":"2016-05-03T14:26:57+00:00"
+      }
+    ]
+  }
+"#;
+
+    #[test]
+    fn roudtrip_deserialize_serialize() {
+        let recipients: Recipients = serde_json::from_str(RAW).unwrap();
+        println!("recipients {:?}", recipients);
+
+        let recipients_str: String = serde_json::to_string(&recipients).unwrap();
+        println!("recipients {}", recipients_str);
+
+        assert_eq!(RAW, recipients_str)
     }
 }

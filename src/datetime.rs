@@ -5,12 +5,13 @@ use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 
 use std::fmt;
 
-use datetime;
+use chrono;
+use chrono::prelude::*;
 
 
 
-#[derive(Debug)]
-pub struct DateTime(datetime::LocalDateTime);
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct DateTime(chrono::DateTime<Utc>);
 
 impl Serialize for DateTime {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -35,9 +36,9 @@ impl<'de> Visitor<'de> for DateTimeVisitor {
     where
         E: de::Error,
     {
-        datetime::LocalDateTime::from_str(value)
+        chrono::DateTime::<Utc>::from_str(value)
             .map(|x| DateTime(x))
-            .map_err(|e| de::Error::invalid_value(Unexpected::Str(value), &self))
+            .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
     }
 }
 

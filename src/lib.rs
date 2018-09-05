@@ -4,7 +4,7 @@ extern crate serde_derive;
 
 extern crate serde_json;
 
-extern crate datetime;
+extern crate chrono;
 extern crate url;
 
 #[macro_use]
@@ -25,11 +25,15 @@ use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 use std::slice::Iter;
 use std::vec::Vec;
 
+#[macro_use]
+pub mod macros;
+
 mod errors;
 use errors::*;
 
-mod datetime2;
-pub use datetime2::*;
+mod datetime;
+use datetime::DateTime;
+pub use datetime::*;
 
 mod identifier;
 pub use identifier::*;
@@ -61,8 +65,6 @@ pub enum Direction {
     Invalid,
 }
 
-
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Gateway(pub u32);
 
@@ -72,7 +74,6 @@ pub enum TypeDetail {
     #[serde(rename = "udh")]
     UserDataHeader(String),
 }
-
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "class")]
@@ -123,22 +124,22 @@ pub struct Message {
 impl Default for Message {
     fn default() -> Self {
         Self {
-            id : Identifier::default(),
+            id: Identifier::default(),
             href: None,
-            direction : Direction::Invalid,
-            payload_type : PayloadType::Sms,
-            originator : Originator::Other(AlphaNumeric("invalid".to_string())),
-            payload : Payload::Text("This is a default message".to_string()),
-            reference : None,
-            report_url : None,
-            validity : None,
+            direction: Direction::Invalid,
+            payload_type: PayloadType::Sms,
+            originator: Originator::Other(AlphaNumeric("invalid".to_string())),
+            payload: Payload::Text("This is a default message".to_string()),
+            reference: None,
+            report_url: None,
+            validity: None,
             gateway: None,
-            details : HashSet::new(),
-            payload_encoding : PayloadEncoding::Auto,
-            class : MessageClass::Class0,
-            scheduled_datetime:None,
+            details: HashSet::new(),
+            payload_encoding: PayloadEncoding::Auto,
+            class: MessageClass::Class0,
+            scheduled_datetime: None,
             creation_datetime: None,
-            recipients : Recipients::default(),
+            recipients: Recipients::default(),
         }
     }
 }
@@ -146,43 +147,48 @@ impl Default for Message {
 impl Message {
     pub fn builder() -> MessageBuilder {
         MessageBuilder {
-            message : Message::default()
+            message: Message::default(),
         }
     }
 }
 
 pub struct MessageBuilder {
-    message : Message,
+    message: Message,
 }
 
 impl MessageBuilder {
-    pub fn payload(mut self, payload_type : PayloadType, payload: Payload, payload_encoding : PayloadEncoding) -> Self {
+    pub fn payload(
+        mut self,
+        payload_type: PayloadType,
+        payload: Payload,
+        payload_encoding: PayloadEncoding,
+    ) -> Self {
         self.message.payload_type = payload_type;
         self.message.payload_encoding = payload_encoding;
         self.message.payload = payload;
         self
     }
-    pub fn href(mut self, href : CallbackUrl) -> Self {
+    pub fn href(mut self, href: CallbackUrl) -> Self {
         self.message.href = Some(href);
         self
     }
-    pub fn report_url(mut self, report_url : CallbackUrl) -> Self {
+    pub fn report_url(mut self, report_url: CallbackUrl) -> Self {
         self.message.report_url = Some(report_url); // FIXME
         self
     }
-    pub fn origin(mut self, originator : Originator) -> Self {
+    pub fn origin(mut self, originator: Originator) -> Self {
         self.message.originator = originator;
         self
     }
-    pub fn direction(mut self, direction : Direction) -> Self {
+    pub fn direction(mut self, direction: Direction) -> Self {
         self.message.direction = direction;
         self
     }
-    pub fn recipient(mut self, recipient : Recipient) -> Self {
+    pub fn recipient(mut self, recipient: Recipient) -> Self {
         self.message.recipients.add(recipient);
         self
     }
-    pub fn identifier(mut self, identifier : Identifier) -> Self {
+    pub fn identifier(mut self, identifier: Identifier) -> Self {
         self.message.id = identifier;
         self
     }
@@ -229,6 +235,18 @@ mod tests {
 
     #[test]
     fn roundtrip_serialize_deserialize() {
+        let msg = Message::builder()
+            .payload(
+                PayloadType::Sms,
+                Payload::Text("fun".to_string()),
+                PayloadEncoding::Auto,
+            ).origin(Originator::Other(AlphaNumeric("iamthesource".to_string())))
+            .direction(Direction::SendToMobile)
+            .recipient(Recipient::new())
+            .build();
+
+        let msg_str: String = serde_json::to_string(&msg).unwrap();
+        println!("msg {}", msg_str);
     }
 
     #[test]

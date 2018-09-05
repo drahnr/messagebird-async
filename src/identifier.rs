@@ -6,7 +6,7 @@ use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 use std::fmt;
 
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Identifier(String);
 
 impl Default for Identifier {
