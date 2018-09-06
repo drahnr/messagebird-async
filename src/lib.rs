@@ -19,9 +19,6 @@ extern crate failure_derive;
 use std::time::Duration;
 use url::Url;
 
-use serde::de::{self, Deserialize, Deserializer, Expected, Unexpected, Visitor};
-use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
-
 use std::slice::Iter;
 use std::vec::Vec;
 
