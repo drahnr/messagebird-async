@@ -34,7 +34,6 @@ impl FromStr for TelephoneNumber {
     }
 }
 
-// TODO impl into() for Originator
 // requires manual Serialize/Deserialize impl
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct AlphaNumeric(pub String);
@@ -78,6 +77,18 @@ impl FromStr for Originator {
                 AlphaNumeric::from_str(s)
                     .and_then(|alphanumeric| Ok(Originator::Other(alphanumeric)))
             })
+    }
+}
+
+impl From<TelephoneNumber> for Originator {
+    fn from(telephonenumber: TelephoneNumber) -> Self {
+        Originator::TelephoneNumber(telephonenumber)
+    }
+}
+
+impl From<AlphaNumeric> for Originator {
+    fn from(alphanumeric: AlphaNumeric) -> Self {
+        Originator::Other(alphanumeric)
     }
 }
 
