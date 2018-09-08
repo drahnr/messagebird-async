@@ -14,6 +14,13 @@ pub enum Direction {
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Gateway(pub u32);
 
+impl Deref for Gateway {
+    type Target = u32;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub enum TypeDetail {

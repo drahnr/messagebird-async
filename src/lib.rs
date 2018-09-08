@@ -23,6 +23,7 @@ pub mod macros;
 mod errors;
 use errors::*;
 
+use std::ops::Deref;
 use std::slice::Iter;
 use std::str::FromStr;
 use std::time::Duration;

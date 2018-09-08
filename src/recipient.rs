@@ -10,6 +10,13 @@ use std::fmt;
 #[serde(rename = "msisdn")]
 pub struct Msisdn(u64);
 
+impl Deref for Msisdn {
+    type Target = u64;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 /// Mobile Subscriber Integrated Services Digital Network Number
 ///
 /// A worldwide unique phone number. This does not require a `+` or `00` prefix before the country code.
