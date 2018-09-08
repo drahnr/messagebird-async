@@ -5,7 +5,7 @@ use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct CallbackUrl(Url);
 
 impl Serialize for CallbackUrl {
@@ -43,4 +43,19 @@ impl<'de> Deserialize<'de> for CallbackUrl {
     {
         deserializer.deserialize_str(CallbackUrlVisitor)
     }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    static RAW: &str = r#"
+"https://fun.with.https"
+"#;
+
+    deser_roundtrip!(url_deser, CallbackUrl, RAW);
+    serde_roundtrip!(
+        url_serde,
+        CallbackUrl,
+        CallbackUrl(Url::parse("https://ahoi.io/messagebird/tracker/cb").unwrap())
+    );
 }

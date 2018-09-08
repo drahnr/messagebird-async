@@ -64,3 +64,14 @@ impl<'de> Deserialize<'de> for Identifier {
         deserializer.deserialize_str(IdentifierVisitor)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    static RAW: &str = r#"
+"01238dsfusd98ufe89hsdkncksadf"
+"#;
+
+    deser_roundtrip!(url_deser, Identifier, RAW);
+    serde_roundtrip!(url_serde, Identifier, Identifier::default());
+}

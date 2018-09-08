@@ -7,8 +7,9 @@ use std::fmt;
 
 use regex::Regex;
 
+// TODO impl into() for Originator
 // requires manual Serialize/Deserialize impl
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TelephoneNumber(pub String);
 
 impl TelephoneNumber {
@@ -33,8 +34,9 @@ impl FromStr for TelephoneNumber {
     }
 }
 
+// TODO impl into() for Originator
 // requires manual Serialize/Deserialize impl
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct AlphaNumeric(pub String);
 
 impl AlphaNumeric {
@@ -59,7 +61,7 @@ impl FromStr for AlphaNumeric {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(untagged)]
 pub enum Originator {
@@ -104,4 +106,19 @@ impl<'de> Deserialize<'de> for Originator {
     {
         deserializer.deserialize_str(OriginatorVisitor)
     }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    static RAW: &str = r#"
+"123456789
+"#;
+
+    deser_roundtrip!(originator_deser, Originator, RAW);
+    serde_roundtrip!(
+        originator_serde,
+        Originator,
+        Originator::TelephoneNumber(TelephoneNumber("49123456789".to_string()))
+    );
 }
