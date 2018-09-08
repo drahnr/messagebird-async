@@ -89,11 +89,12 @@ impl<'de> Visitor<'de> for PayloadVisitor {
     where
         E: de::Error,
     {
-        unimplemented!(
-            "not clear yet how to do this without knowing the the payload_type in advance"
-        )
-        // Payload::from_str(value)
-        //     .map_err(|e| de::Error::invalid_value(Unexpected::Str(value), &self))
+        // TODO this actually requires context
+        // TODO on how to parse the `value`
+        // TODO without the type it is impossible to decide
+        // TODO if i.e. 1234 is a Binary repr or a Text
+        Payload::from_str(value)
+             .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
     }
 }
 

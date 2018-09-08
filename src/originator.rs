@@ -123,13 +123,13 @@ impl<'de> Deserialize<'de> for Originator {
 mod test {
     use super::*;
     static RAW: &str = r#"
-"123456789
+"123456789"
 "#;
 
     deser_roundtrip!(originator_deser, Originator, RAW);
     serde_roundtrip!(
         originator_serde,
         Originator,
-        Originator::TelephoneNumber(TelephoneNumber("49123456789".to_string()))
+        TelephoneNumber::from_str("49123456789").unwrap().into()
     );
 }

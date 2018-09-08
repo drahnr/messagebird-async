@@ -30,6 +30,10 @@ impl Msisdn {
             Ok(Msisdn(raw))
         }
     }
+
+    pub fn to_string(&self) -> String {
+        format!("{}", self.0)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
