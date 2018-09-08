@@ -23,7 +23,7 @@ impl<'de> Visitor<'de> for CallbackUrlVisitor {
     type Value = CallbackUrl;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a valid url")
+        formatter.write_str("a valid callback/href http url")
     }
 
     fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>

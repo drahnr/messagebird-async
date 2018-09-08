@@ -5,7 +5,7 @@ use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 
 use std::fmt;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(rename = "encoding")]
 pub enum PayloadEncoding {
@@ -14,7 +14,7 @@ pub enum PayloadEncoding {
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum PayloadType {
     Sms,

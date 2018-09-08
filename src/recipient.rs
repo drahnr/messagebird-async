@@ -62,11 +62,11 @@ impl Recipient {
 mod test {
     use super::*;
 
-    static RAW: &str = r#"
+    static RAW: &str = r#"{
 "recipient": 23747,
 "status": "delivery_failed",
 "statusDatetime" : "2016-05-03T14:26:57+00:00"
-"#;
+}"#;
     deser_roundtrip!(recipient_deser, Recipient, RAW);
     serde_roundtrip!(recipient_serde, Recipient, Recipient::new());
 }

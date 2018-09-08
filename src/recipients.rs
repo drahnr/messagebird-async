@@ -12,7 +12,7 @@ pub struct Recipients {
     total_count: u32,
     #[serde(rename = "totalSentCount")]
     total_sent: u32,
-    #[serde(rename = "totalDelivered")]
+    #[serde(rename = "totalDeliveredCount")]
     total_delivered: u32,
     #[serde(rename = "totalDeliveryFailedCount")]
     total_delivery_failed: u32,
@@ -51,7 +51,7 @@ impl Recipients {
 #[cfg(test)]
 mod test {
     use super::*;
-    static RAW: &str = r#"
+    static RAW: &str = r#"{
     "totalCount":1,
     "totalSentCount":1,
     "totalDeliveredCount":0,
@@ -63,7 +63,7 @@ mod test {
         "statusDatetime":"2016-05-03T14:26:57+00:00"
       }
     ]
-"#;
+}"#;
 
     deser_roundtrip!(recipients_deser, Recipients, RAW);
     serde_roundtrip!(recipients_serde, Recipients, Recipients::default());
