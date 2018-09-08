@@ -10,9 +10,18 @@ use std::fmt;
 #[serde(rename = "msisdn")]
 pub struct Msisdn(u64);
 
+/// Mobile Subscriber Integrated Services Digital Network Number
+///
+/// A worldwide unique phone number. This does not require a `+` or `00` prefix before the country code.
 impl Msisdn {
-    pub fn new(raw: u64) -> Result<Self, u32> {
-        Ok(Msisdn(raw))
+    pub fn new(raw: u64) -> Result<Self, MessageBirdError> {
+        if raw != 0 {
+            Err(MessageBirdError::TypeError {
+                msg: format!("Invalid phone number: {}", raw),
+            })
+        } else {
+            Ok(Msisdn(raw))
+        }
     }
 }
 
@@ -42,8 +51,8 @@ pub struct Recipient {
 impl Recipient {
     pub fn new() -> Self {
         Self {
-            msisdn : Msisdn(0),
-            status : None,
+            msisdn: Msisdn(0),
+            status: None,
             status_datetime: None,
         }
     }
@@ -54,11 +63,9 @@ mod test {
     use super::*;
 
     static RAW: &str = r#"
-{
-"receipient": 23747,
-"status": "deliver_failed",
+"recipient": 23747,
+"status": "delivery_failed",
 "statusDatetime" : "2016-05-03T14:26:57+00:00"
-}
 "#;
     deser_roundtrip!(recipient_deser, Recipient, RAW);
     serde_roundtrip!(recipient_serde, Recipient, Recipient::new());

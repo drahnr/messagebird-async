@@ -26,7 +26,7 @@ pub enum PayloadType {
 
 
 
-#[derive(Debug)]
+#[derive(Debug,Eq,PartialEq)]
 pub enum Payload {
     Bytes(Vec<u8>),
     Text(String),
@@ -108,4 +108,16 @@ impl<'de> Deserialize<'de> for Payload {
     {
         deserializer.deserialize_str(PayloadVisitor)
     }
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    static RAW: &str = r#"
+"16483910"
+"#;
+    deser_roundtrip!(payload_deser, Payload, RAW);
+    serde_roundtrip!(payload_serde, Payload, Payload::default());
 }

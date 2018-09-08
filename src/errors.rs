@@ -8,6 +8,9 @@ pub enum MessageBirdError {
     #[fail(display = "invalid json format: {}", chunk)]
     FormatError { chunk: String },
 
+    #[fail(display = "invalid paramter for type: {}", msg)]
+    TypeError { msg: String },
+
     #[fail(display = "service return code: {}", code)]
     Service { code: u32 },
 }
