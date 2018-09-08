@@ -23,9 +23,9 @@ pub mod macros;
 mod errors;
 use errors::*;
 
+use std::slice::Iter;
 use std::str::FromStr;
 use std::time::Duration;
-use std::slice::Iter;
 
 mod datetime;
 use datetime::DateTime;

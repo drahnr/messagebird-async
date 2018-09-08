@@ -1,6 +1,5 @@
 use super::*;
 
-
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "direction")]
 pub enum Direction {
@@ -71,7 +70,6 @@ pub struct Message {
     creation_datetime: Option<DateTime>,
     recipients: Recipients,
 }
-
 
 /// SendableMessage is an object that can be passed on to MessageBird API to trigger sending a SMS
 pub struct SendableMessage {
@@ -190,16 +188,19 @@ mod tests {
 }
 "#;
 
-
     deser_roundtrip!(message_deser, Message, RAW);
-    serde_roundtrip!(message_serde, Message, Message::builder()
+    serde_roundtrip!(
+        message_serde,
+        Message,
+        Message::builder()
             .payload(
                 PayloadType::Sms,
                 Payload::Text("fun".to_string()),
-                PayloadEncoding::Auto,
+                PayloadEncoding::Auto
             )
             .origin(Originator::Other(AlphaNumeric("iamthesource".to_string())))
             .direction(Direction::SendToMobile)
             .recipient(Recipient::new())
-            .build());
+            .build()
+    );
 }
