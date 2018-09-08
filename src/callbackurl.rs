@@ -32,7 +32,7 @@ impl<'de> Visitor<'de> for CallbackUrlVisitor {
     {
         Url::parse(value)
             .map(|url| CallbackUrl(url))
-            .map_err(|e| de::Error::invalid_value(Unexpected::Str(value), &self))
+            .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
     }
 }
 

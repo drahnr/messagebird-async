@@ -63,7 +63,7 @@ impl<'de> Visitor<'de> for IdentifierVisitor {
         E: de::Error,
     {
         Identifier::from_str(value)
-            .map_err(|e| de::Error::invalid_value(Unexpected::Str(value), &self))
+            .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
     }
 }
 
