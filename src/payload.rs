@@ -94,7 +94,7 @@ impl<'de> Visitor<'de> for PayloadVisitor {
         // TODO without the type it is impossible to decide
         // TODO if i.e. 1234 is a Binary repr or a Text
         Payload::from_str(value)
-             .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
+            .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
     }
 }
 
