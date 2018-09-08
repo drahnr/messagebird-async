@@ -1,5 +1,5 @@
 macro_rules! serde_roundtrip {
-    ( $testfn:tt, $ty:ty, $x:expr ) => {
+    ($testfn:tt, $ty:ty, $x:expr) => {
         #[test]
         fn $testfn() {
             let obj: $ty = $x;
@@ -15,10 +15,10 @@ macro_rules! serde_roundtrip {
 }
 
 macro_rules! deser_roundtrip {
-    ( $testfn:tt, $ty:ty, $obj_json:expr ) => {
+    ($testfn:tt, $ty:ty, $obj_json:expr) => {
         #[test]
         fn $testfn() {
-            let obj_json : &str = $obj_json;
+            let obj_json: &str = $obj_json;
             println!("obj {}", obj_json);
             let obj: $ty = serde_json::from_str(obj_json).unwrap();
             println!("obj {:?}", obj);

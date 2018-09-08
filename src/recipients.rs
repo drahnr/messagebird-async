@@ -34,7 +34,11 @@ impl Default for Recipients {
 
 impl Recipients {
     pub fn count(&self) -> (u32, u32, u32) {
-        (self.total_sent, self.total_delivered, self.total_delivery_failed)
+        (
+            self.total_sent,
+            self.total_delivered,
+            self.total_delivery_failed,
+        )
     }
     pub fn iter(&mut self) -> Iter<Recipient> {
         self.items.iter()

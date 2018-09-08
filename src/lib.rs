@@ -50,7 +50,6 @@ pub use recipients::*;
 mod payload;
 pub use payload::*;
 
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename = "direction")]
 pub enum Direction {
@@ -237,7 +236,8 @@ mod tests {
                 PayloadType::Sms,
                 Payload::Text("fun".to_string()),
                 PayloadEncoding::Auto,
-            ).origin(Originator::Other(AlphaNumeric("iamthesource".to_string())))
+            )
+            .origin(Originator::Other(AlphaNumeric("iamthesource".to_string())))
             .direction(Direction::SendToMobile)
             .recipient(Recipient::new())
             .build();

@@ -17,7 +17,6 @@ impl Serialize for CallbackUrl {
     }
 }
 
-
 struct CallbackUrlVisitor;
 
 impl<'de> Visitor<'de> for CallbackUrlVisitor {

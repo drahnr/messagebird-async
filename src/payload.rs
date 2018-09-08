@@ -5,8 +5,6 @@ use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 
 use std::fmt;
 
-
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(rename = "encoding")]
@@ -24,9 +22,7 @@ pub enum PayloadType {
     Flash,
 }
 
-
-
-#[derive(Debug,Eq,PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Payload {
     Bytes(Vec<u8>),
     Text(String),
@@ -46,10 +42,10 @@ impl fmt::LowerHex for Payload {
                 for byte in bytes {
                     write!(f, "{:x} ", byte)?;
                 }
-            },
+            }
             Payload::Text(ref s) => {
                 for byte in s.as_bytes() {
-                write!(f, "{:x} ", byte)?;
+                    write!(f, "{:x} ", byte)?;
                 }
             }
         }
@@ -75,9 +71,7 @@ impl Serialize for Payload {
                 let data = format!("{:x}", self);
                 serializer.serialize_str(data.as_str())
             }
-            Payload::Text(ref s) => {
-                serializer.serialize_str(s.as_str())
-            }
+            Payload::Text(ref s) => serializer.serialize_str(s.as_str()),
         }
     }
 }
@@ -95,7 +89,9 @@ impl<'de> Visitor<'de> for PayloadVisitor {
     where
         E: de::Error,
     {
-        unimplemented!("not clear yet how to do this without knowing the the payload_type in advance")
+        unimplemented!(
+            "not clear yet how to do this without knowing the the payload_type in advance"
+        )
         // Payload::from_str(value)
         //     .map_err(|e| de::Error::invalid_value(Unexpected::Str(value), &self))
     }
@@ -109,7 +105,6 @@ impl<'de> Deserialize<'de> for Payload {
         deserializer.deserialize_str(PayloadVisitor)
     }
 }
-
 
 #[cfg(test)]
 mod test {
