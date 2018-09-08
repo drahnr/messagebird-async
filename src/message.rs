@@ -21,13 +21,6 @@ impl Deref for Gateway {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
-#[serde(rename_all = "camelCase")]
-pub enum TypeDetail {
-    #[serde(rename = "udh")]
-    UserDataHeader(String),
-}
-
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "class")]
 pub enum MessageClass {

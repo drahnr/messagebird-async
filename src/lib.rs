@@ -50,5 +50,8 @@ pub use recipients::*;
 mod payload;
 pub use payload::*;
 
+mod typedetails;
+pub use typedetails::*;
+
 mod message;
 pub use message::*;
