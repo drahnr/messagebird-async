@@ -2,14 +2,41 @@ use super::*;
 use std::collections::{hash_set::Iter, HashSet};
 use std::fmt;
 
-use serde::de::{self, Deserialize, Deserializer, Expected, Unexpected, Visitor};
+use serde::de::{self, Deserialize, Deserializer, Expected, MapAccess, Unexpected, Visitor};
 use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, Clone)]
-#[serde(rename_all = "camelCase")]
+#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum TypeDetail {
     #[serde(rename = "udh")]
     UserDataHeader(String),
+}
+
+use std::hash::{Hash, Hasher};
+
+impl Hash for TypeDetail {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            TypeDetail::UserDataHeader(_) => 1.hash(state),
+            _ => unreachable!("Mising implementation for struct variant"),
+        }
+    }
+}
+
+impl TypeDetail {
+    pub fn try_from(src: (String, String)) -> Result<Self, MessageBirdError> {
+        match src.0.as_str() {
+            "udh" => Ok(TypeDetail::UserDataHeader(src.1)),
+            x => Err(MessageBirdError::TypeError {
+                msg: format!("Unknown TypeDetail \"{}\"", x),
+            }),
+        }
+    }
+    pub fn as_tuple(self) -> (String, String) {
+        match self {
+            TypeDetail::UserDataHeader(x) => (String::from("udh"), x),
+            _ => unreachable!("xxxxxxxxxxxxxxxxxxxx")
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -40,7 +67,13 @@ impl Serialize for TypeDetails {
     where
         S: Serializer,
     {
-        unimplemented!("FIXME TypeDetails impl for serialize")
+        let mut map = serializer.serialize_map(Some(self.inner.len()))?;
+        for x in &self.inner {
+            let (k,v) = x.clone().as_tuple();
+            map.serialize_entry(&k, &v)?;
+        }
+        map.end()
+
     }
 }
 
@@ -50,16 +83,24 @@ impl<'de> Visitor<'de> for TypeDetailsVisitor {
     type Value = TypeDetails;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a valid date time formatted str")
+        formatter.write_str("a TypeDetails Map")
     }
 
-    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
     where
-        E: de::Error,
+        M: MapAccess<'de>,
     {
-        // Payload::from_str(value)
-        //    .map_err(|_e| de::Error::invalid_value(Unexpected::Str(value), &self))
-        unimplemented!("type detail deserialization fun")
+        let mut set = TypeDetails::new();
+
+        while let Some((key, value)) = access.next_entry()? {
+            let p: (String, String) = (key, value);
+            println!("TypeDetail key: {:?} value: {:?}", p.0, p.1);
+            // TODO map error properly
+            let td = TypeDetail::try_from(p).expect("Expected a valid type detail");
+            set.add(td);
+        }
+
+        Ok(set)
     }
 }
 
@@ -68,7 +109,7 @@ impl<'de> Deserialize<'de> for TypeDetails {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_str(TypeDetailsVisitor)
+        deserializer.deserialize_map(TypeDetailsVisitor)
     }
 }
 
@@ -76,10 +117,10 @@ impl<'de> Deserialize<'de> for TypeDetails {
 mod tests {
     use super::*;
 
-    static RAW_TYPE_DETAIL_EMPTY: &str = r#"
+    static RAW_TYPE_DETAILS_EMPTY: &str = r#"
 {}
 "#;
-    static RAW_TYPE_DETAIL_WITH_UDH: &str = r#"
+    static RAW_TYPE_DETAILS_WITH_UDH: &str = r#"
 {
     "udh" : "UserDataHeaderContent:)"
 }
@@ -93,13 +134,20 @@ mod tests {
         };
     }
 
-    serde_roundtrip!(serde_typedetail_empty, TypeDetails, TypeDetails::new());
-    serde_roundtrip!(serde_typedetail_with_udh, TypeDetails, DETAILS.clone());
-    deser_roundtrip!(deser_typedetail_empty, TypeDetails, RAW_TYPE_DETAIL_EMPTY);
+    serde_roundtrip!(serde_typedetails_empty, TypeDetails, TypeDetails::new());
+    deser_roundtrip!(deser_typedetails_empty, TypeDetails, RAW_TYPE_DETAILS_EMPTY);
+
+    serde_roundtrip!(serde_typedetails_with_udh, TypeDetails, DETAILS.clone());
     deser_roundtrip!(
-        deser_typedetail_with_udh,
+        deser_typedetails_with_udh,
         TypeDetails,
-        RAW_TYPE_DETAIL_WITH_UDH
+        RAW_TYPE_DETAILS_WITH_UDH
+    );
+
+    serde_roundtrip!(
+        serde_typedetail_udh,
+        TypeDetail,
+        TypeDetail::UserDataHeader("some".to_string())
     );
 
 }
