@@ -1,12 +1,10 @@
-use super::*;
-
 use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
 use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
 
 use chrono;
-use chrono::offset::{FixedOffset, Local, Offset, Utc};
+use chrono::offset::{FixedOffset, Local, Offset};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct DateTime(chrono::DateTime<FixedOffset>);

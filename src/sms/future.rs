@@ -6,13 +6,28 @@ use super::*;
 
 use futures::*;
 use hyper;
+use url;
 
 #[derive(Debug,Clone)]
-pub struct Query {}
+pub struct Query{
+    uri : hyper::Uri
+}
 
 impl Query {
+    pub fn parse(input : &str) -> Result<Query, MessageBirdError>{
+        Ok(Self {
+            uri : hyper::Uri::parse(input).map_err(|e| {
+                    MessageBirdError::ParseError.context(e)?
+        })
+        })
+    }
+
     pub fn builder() -> QueryBuilder {
         QueryBuilder::default()
+    }
+
+    pub fn as_str(&self) -> &str {
+        self.uri.as_str()
     }
 }
 
@@ -66,8 +81,14 @@ impl QueryBuilder {
         unimplemented!()
     }
 
-    fn build(mut self) -> String {
-        self.filter
+    fn build(mut self) -> Query {
+        debug!("query {}", &self.filter);
+        let mut base = String::from("https://rest.messagebird.com/messages");
+        if self.filter.len() > 0 {
+        base.append("/");
+        base.append(self.filter);
+        }
+        Query::parse(base.as_str()).expect("The builder shuld prevent parsing errors")
     }
 }
 
@@ -78,11 +99,40 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn new(query : Query) {
+    pub fn new(query : Query) -> Self {
+        let mut client = Client::new()
+
+            // And then, if the request gets a response...
+        client.get().and_then(|res| {
+            println!("status: {}", res.status());
+
+            // Concatenate the body stream into a single buffer...
+            // This returns a new future, since we must stream body.
+            res.into_body().concat2()
+        })
+
+        // And then, if reading the full body succeeds...
+        .and_then(|body| {
+            // The body is just bytes, but let's print a string...
+            let s = ::std::str::from_utf8(&body)
+                .expect("http bin sends utf-8 JSON");
+
+            println!("body: {}", s);
+
+            // and_then requires we return a new Future, and it turns
+            // out that Result is a Future that is ready immediately.
+            Ok(())
+        })
+
+        // Map any errors that might have happened...
+        .map_err(|err| {
+            println!("error: {}", err);
+        });
+
         Self {
-            client : Client::new(),
+            client,
             query,
-            future : Box::new(client.get())
+            future : 
         }
     }
 }

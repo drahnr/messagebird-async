@@ -14,7 +14,7 @@ use url::Url;
 extern crate lazy_static;
 extern crate regex;
 
-#[macro_use]
+//#[macro_use]
 extern crate failure;
 
 #[macro_use]
@@ -25,7 +25,5 @@ use errors::*;
 
 #[macro_use]
 mod macros;
-pub use self::macros::*;
 
 pub mod sms;
-use sms::*;

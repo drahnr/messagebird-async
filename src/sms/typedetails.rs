@@ -2,8 +2,8 @@ use super::*;
 use std::collections::{hash_set::Iter, HashSet};
 use std::fmt;
 
-use serde::de::{self, Deserialize, Deserializer, Expected, MapAccess, Unexpected, Visitor};
-use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
+use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
+use serde::ser::{Serialize, SerializeMap, Serializer};
 
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum TypeDetail {
@@ -17,7 +17,7 @@ impl Hash for TypeDetail {
     fn hash<H: Hasher>(&self, state: &mut H) {
         match self {
             TypeDetail::UserDataHeader(_) => 1.hash(state),
-            _ => unreachable!("Mising implementation for struct variant"),
+            // expiermental: _ => #[allow(unreachable_code)] unreachable!("Mising implementation for struct variant"),
         }
     }
 }
@@ -31,10 +31,11 @@ impl TypeDetail {
             }),
         }
     }
+
     pub fn as_tuple(self) -> (String, String) {
         match self {
             TypeDetail::UserDataHeader(x) => (String::from("udh"), x),
-            _ => unreachable!("xxxxxxxxxxxxxxxxxxxx"),
+            // expiermental: _ => #[allow(unreachable_code)] unreachable!("tuple conversion"),
         }
     }
 }

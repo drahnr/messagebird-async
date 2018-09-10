@@ -1,13 +1,17 @@
+#[cfg(test)]
 use regex;
 
+#[cfg(test)]
 lazy_static! {
     pub static ref RE: regex::Regex = regex::Regex::new(r"[\n\s]+").unwrap();
 }
 
+#[cfg(test)]
 macro_rules! serde_roundtrip {
     ($testfn:tt, $ty:ty, $x:expr) => {
         #[test]
         fn $testfn() {
+            use serde_json;
             let obj: $ty = $x;
             println!("obj original {:?}", obj);
             let obj_json = serde_json::to_string(&obj).unwrap();
@@ -19,10 +23,13 @@ macro_rules! serde_roundtrip {
     };
 }
 
+#[cfg(test)]
 macro_rules! deser_roundtrip {
     ($testfn:tt, $ty:ty, $obj_json:expr) => {
         #[test]
         fn $testfn() {
+            use serde_json;
+            use regex;
             let obj_json: &str = $obj_json;
             let obj_json = obj_json.clone();
             // remove all whitespace and linebreaks or the resulting

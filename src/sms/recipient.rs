@@ -1,10 +1,5 @@
 use super::*;
 
-use serde::de::{self, Deserialize, Deserializer, Expected, Unexpected, Visitor};
-use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
-
-use std::fmt;
-
 // requires manual Serialize/Deserialize impl
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "msisdn")]

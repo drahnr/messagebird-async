@@ -1,5 +1,3 @@
-use std;
-
 // pub type MessageBirdResult<T> = std::result::Result<T, MessageBirdError>;
 
 #[derive(Debug, Fail)]
@@ -11,5 +9,8 @@ pub enum MessageBirdError {
     TypeError { msg: String },
 
     #[fail(display = "service return code: {}", code)]
-    Service { code: u32 },
+    ServiceError { code: u32 },
+
+    #[fail(display = "parsing failed")]
+    ParseError,
 }
