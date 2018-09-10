@@ -1,5 +1,7 @@
 use super::*;
 
+use super::recipient::*;
+
 use serde::de::{self, Deserialize, Deserializer, Expected, Unexpected, Visitor};
 use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 

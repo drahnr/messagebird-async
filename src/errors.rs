@@ -1,7 +1,6 @@
-use failure::Error;
 use std;
 
-pub type MessageBirdResult<T> = std::result::Result<T, MessageBirdError>;
+// pub type MessageBirdResult<T> = std::result::Result<T, MessageBirdError>;
 
 #[derive(Debug, Fail)]
 pub enum MessageBirdError {

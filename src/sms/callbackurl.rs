@@ -1,7 +1,7 @@
 use super::*;
 
-use serde::de::{self, Deserialize, Deserializer, Expected, Unexpected, Visitor};
-use serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
+use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
+use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
 

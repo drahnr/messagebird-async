@@ -34,7 +34,7 @@ impl TypeDetail {
     pub fn as_tuple(self) -> (String, String) {
         match self {
             TypeDetail::UserDataHeader(x) => (String::from("udh"), x),
-            _ => unreachable!("xxxxxxxxxxxxxxxxxxxx")
+            _ => unreachable!("xxxxxxxxxxxxxxxxxxxx"),
         }
     }
 }
@@ -69,11 +69,10 @@ impl Serialize for TypeDetails {
     {
         let mut map = serializer.serialize_map(Some(self.inner.len()))?;
         for x in &self.inner {
-            let (k,v) = x.clone().as_tuple();
+            let (k, v) = x.clone().as_tuple();
             map.serialize_entry(&k, &v)?;
         }
         map.end()
-
     }
 }
 

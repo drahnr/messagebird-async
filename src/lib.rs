@@ -1,3 +1,5 @@
+extern crate hyper;
+
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -14,44 +16,16 @@ extern crate regex;
 
 #[macro_use]
 extern crate failure;
+
 #[macro_use]
 extern crate failure_derive;
 
-#[macro_use]
-pub mod macros;
-
-mod errors;
+pub mod errors;
 use errors::*;
 
-use std::ops::Deref;
-use std::slice::Iter;
-use std::str::FromStr;
-use std::time::Duration;
+#[macro_use]
+mod macros;
+pub use self::macros::*;
 
-mod datetime;
-use datetime::DateTime;
-pub use datetime::*;
-
-mod identifier;
-pub use identifier::*;
-
-mod callbackurl;
-pub use callbackurl::*;
-
-mod originator;
-pub use originator::*;
-
-mod recipient;
-pub use recipient::*;
-
-mod recipients;
-pub use recipients::*;
-
-mod payload;
-pub use payload::*;
-
-mod typedetails;
-pub use typedetails::*;
-
-mod message;
-pub use message::*;
+pub mod sms;
+use sms::*;
