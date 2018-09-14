@@ -25,10 +25,6 @@ impl Msisdn {
             Ok(Msisdn(raw))
         }
     }
-
-    pub fn to_string(&self) -> String {
-        format!("{}", self.0)
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
@@ -41,6 +37,20 @@ pub enum Status {
     Delivered,
     Expired,
     DeliveryFailed,
+}
+
+impl Status {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Status::Scheduled => "scheduled",
+            Status::Sent => "sent",
+            Status::Buffered => "buffered",
+            Status::Delivered => "delivered",
+            Status::Expired => "expired",
+            Status::DeliveryFailed => "delivery_failed",
+            _ => "invalid",
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]

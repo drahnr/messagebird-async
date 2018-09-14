@@ -1,4 +1,7 @@
+extern crate futures;
+
 extern crate hyper;
+extern crate hyper_rustls;
 
 extern crate serde;
 #[macro_use]
@@ -9,6 +12,9 @@ extern crate serde_json;
 extern crate chrono;
 extern crate url;
 use url::Url;
+
+#[macro_use]
+extern crate log;
 
 #[macro_use]
 extern crate lazy_static;

@@ -6,10 +6,10 @@ use std::str::FromStr;
 use std::time::Duration;
 
 mod datetime;
-use self::datetime::*;
+pub use self::datetime::*;
 
 mod callbackurl;
-use self::callbackurl::*;
+pub use self::callbackurl::*;
 
 mod identifier;
 pub use self::identifier::*;
@@ -29,8 +29,11 @@ pub use self::recipient::*;
 mod recipients;
 pub use self::recipients::*;
 
-mod request;
-pub use self::request::*;
+mod future;
+pub use self::future::*;
 
 mod typedetails;
 pub use self::typedetails::*;
+
+mod query;
+pub use self::query::*;

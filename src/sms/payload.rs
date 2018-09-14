@@ -22,6 +22,16 @@ pub enum PayloadType {
     Flash,
 }
 
+impl PayloadType {
+    pub fn as_str(&self) -> &str {
+        match self {
+            PayloadType::Sms => "sms",
+            PayloadType::Binary => "binary",
+            PayloadType::Flash => "flash",
+        }
+    }
+}
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum Payload {
     Bytes(Vec<u8>),

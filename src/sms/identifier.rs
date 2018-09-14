@@ -18,6 +18,9 @@ impl Identifier {
     pub fn new(raw: String) -> Self {
         Identifier(raw)
     }
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
 }
 
 impl FromStr for Identifier {
@@ -45,7 +48,7 @@ impl Serialize for Identifier {
     where
         S: Serializer,
     {
-        serializer.serialize_str(self.0.as_str())
+        serializer.serialize_str(self.as_str())
     }
 }
 

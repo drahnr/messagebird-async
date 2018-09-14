@@ -5,9 +5,17 @@ use std::fmt;
 
 use chrono;
 use chrono::offset::{FixedOffset, Local, Offset};
+use std::ops::Deref;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct DateTime(chrono::DateTime<FixedOffset>);
+
+impl Deref for DateTime {
+    type Target = chrono::DateTime<FixedOffset>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 use std::time;
 impl Default for DateTime {
@@ -17,6 +25,12 @@ impl Default for DateTime {
         let tz = chrono::offset::Utc.fix();
         let datetime_with_tz = datetime_local.with_timezone(&tz);
         DateTime(datetime_with_tz)
+    }
+}
+
+impl DateTime {
+    pub fn now() -> Self {
+        Self::default()
     }
 }
 

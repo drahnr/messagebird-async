@@ -79,6 +79,15 @@ impl FromStr for Originator {
     }
 }
 
+impl Originator {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Originator::TelephoneNumber(ref telephonenumber) => telephonenumber.as_str(),
+            Originator::Other(ref alphanumeric) => alphanumeric.as_str(),
+        }
+    }
+}
+
 impl From<TelephoneNumber> for Originator {
     fn from(telephonenumber: TelephoneNumber) -> Self {
         Originator::TelephoneNumber(telephonenumber)

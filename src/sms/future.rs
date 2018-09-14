@@ -8,102 +8,26 @@ use futures::*;
 use hyper;
 use url;
 
-#[derive(Debug,Clone)]
-pub struct Query{
-    uri : hyper::Uri
+use hyper_rustls;
+
+
+pub type RequestMessages = Request<QueryMessages>;
+pub type RequestView = Request<QueryView>;
+pub type RequestSend = Request<QuerySend>;
+
+pub struct Request<T> {
+    client: hyper::client::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
+    query : Query<T>,
+    future : Box<Future<Item=(),Error=MessageBirdError>>,
 }
 
-impl Query {
-    pub fn parse(input : &str) -> Result<Query, MessageBirdError>{
-        Ok(Self {
-            uri : hyper::Uri::parse(input).map_err(|e| {
-                    MessageBirdError::ParseError.context(e)?
-        })
-        })
-    }
-
-    pub fn builder() -> QueryBuilder {
-        QueryBuilder::default()
-    }
-
-    pub fn as_str(&self) -> &str {
-        self.uri.as_str()
-    }
-}
-
-pub struct QueryBuilder {
-    filter: String,
-}
-
-impl Default for QueryBuilder {
-    fn default() -> Self {
-        Self {
-            filter: String::new(),
-        }
-    }
-}
-
-impl QueryBuilder {
-    fn with_originator(mut self, originator: Originator) -> Self {
-        filter.append(originator.as_str());
-        self
-    }
-
-    fn with_payload_type(mut self, payload_type: PayloadType) -> Self {
-        filter.append(payload_type.as_str());
-        self
-    }
-
-    fn with_direction(mut self, direction: Direction) -> Self {
-        filter.append(payload_type.as_str());
-        self
-    }
-
-    fn with_status(mut self, status: Status) -> Self {
-        filter.append(status.as_str());
-        self
-    }
-
-    fn contains_str(mut self, term: &str) -> Self {
-        filter.append(String::from(term));
-        self
-    }
-
-    fn between(mut self, start: DateTime, stop: DateTime) -> Self {
-        self.from(start).until(stop)
-    }
-
-    fn from(mut self, start: DateTime) -> Self {
-        unimplemented!()
-    }
-
-    fn until(mut self, stop: DateTime) -> Self {
-        unimplemented!()
-    }
-
-    fn build(mut self) -> Query {
-        debug!("query {}", &self.filter);
-        let mut base = String::from("https://rest.messagebird.com/messages");
-        if self.filter.len() > 0 {
-        base.append("/");
-        base.append(self.filter);
-        }
-        Query::parse(base.as_str()).expect("The builder shuld prevent parsing errors")
-    }
-}
-
-pub struct Request {
-    client: hyper::Client,
-    query : Query,
-    future : Box<Future<Item=(),Error=MessageBirdError>,
-}
-
-impl Request {
-    pub fn new(query : Query) -> Self {
-        let mut client = Client::new()
+impl<T> Request<T> {
+    pub fn new(query : Query<T>) -> Self {
+        let https = hyper_rustls::HttpsConnector::new(4);
+        let mut client = hyper::client::Client::builder().build(https);
 
             // And then, if the request gets a response...
-        client.get().and_then(|res| {
+        let future = Box::new(client.get(query.deref().clone()).and_then(|res| {
             println!("status: {}", res.status());
 
             // Concatenate the body stream into a single buffer...
@@ -127,20 +51,21 @@ impl Request {
         // Map any errors that might have happened...
         .map_err(|err| {
             println!("error: {}", err);
-        });
+            MessageBirdError::ServiceError{code: 666}
+        }));
 
         Self {
             client,
             query,
-            future : 
+            future,
         }
     }
 }
 
-impl Future for Request {
+impl<T> Future for Request<T> {
     type Item = ();
     type Error = MessageBirdError;
     fn poll(&mut self) -> Result<Async<Self::Item>,Self::Error> {
-        future.poll()
+        self.future.poll()
     }
 }

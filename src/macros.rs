@@ -28,8 +28,8 @@ macro_rules! deser_roundtrip {
     ($testfn:tt, $ty:ty, $obj_json:expr) => {
         #[test]
         fn $testfn() {
-            use serde_json;
             use regex;
+            use serde_json;
             let obj_json: &str = $obj_json;
             let obj_json = obj_json.clone();
             // remove all whitespace and linebreaks or the resulting

@@ -10,9 +10,13 @@ There are no immediate plans to support the Voice or Conversation API, if you fe
 
 ## RoadMap
 
- - [ ] serde impl for all relevant datatypes incl tests
+ - [x] serde impl for all relevant datatypes
+ - [ ] roundtrip decode encode tests
  - [ ] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
+ - [ ] send SMS example
+ - [ ] future for querying SMS
  - [ ] useful examples using [tokio](https://tokio.rs) as executor
+ - [ ] future for callback on SMS reception
 
 ## License
 

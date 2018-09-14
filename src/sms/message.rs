@@ -11,6 +11,16 @@ pub enum Direction {
     Invalid,
 }
 
+impl Direction {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Direction::SendToMobile => "mt",
+            Direction::ReceivedFromMobile => "mo",
+            _ => "invalid",
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Gateway(pub u32);
 
