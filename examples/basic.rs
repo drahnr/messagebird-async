@@ -6,8 +6,6 @@ use messagebird_async::sms;
 use messagebird_async::sms::*;
 
 fn main() {
-    let uri = "https://rest.messagebird.com/messages".parse().unwrap();
-
     let q: Query<QueryMessages> = Query::<QueryMessages>::builder()
         .from(sms::DateTime::now())
         .until(sms::DateTime::now())
@@ -15,12 +13,12 @@ fn main() {
         .build();
 
     let q: Query<QueryMessages> = Query::<QueryMessages>::builder()
-        .with_payload_type("")
-        .with_direction("")
-        .with_originator("198765432")
-        .with_recipient("123456789")
+        .with_payload_type(PayloadType::from_str("").unwrap())
+        .with_direction(Direction::from_str("").unwrap())
+        .originating_from(Originator::from_str("198765432").unwrap())
+        .sent_to(Msisdn::from_str("123456789").unwrap())
         //.with_contact()
-        .contains_term("fun").skip(5).limit(10).build();
+        .contains_term("fun").skip(5).count(10).build();
 
     let fut = RequestMessages::new(q); //.and_then();
 }

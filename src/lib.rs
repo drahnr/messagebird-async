@@ -9,6 +9,8 @@ extern crate serde_derive;
 
 extern crate serde_json;
 
+extern crate serde_plain;
+
 extern crate chrono;
 extern crate url;
 use url::Url;

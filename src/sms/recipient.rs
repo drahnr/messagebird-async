@@ -27,6 +27,21 @@ impl Msisdn {
     }
 }
 
+impl FromStr for Msisdn {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_plain::from_str::<Self>(s).map_err(|_e| {
+            MessageBirdError::ParseError
+        })
+    }
+}
+
+impl ToString for Msisdn {
+    fn to_string(&self) -> String {
+        serde_plain::to_string(self).unwrap()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
@@ -50,6 +65,22 @@ impl Status {
             Status::DeliveryFailed => "delivery_failed",
             _ => "invalid",
         }
+    }
+}
+
+
+impl FromStr for Status {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_plain::from_str::<Self>(s).map_err(|_e| {
+            MessageBirdError::ParseError
+        })
+    }
+}
+
+impl ToString for Status {
+    fn to_string(&self) -> String {
+        serde_plain::to_string(self).unwrap()
     }
 }
 

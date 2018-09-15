@@ -22,6 +22,22 @@ pub enum PayloadType {
     Flash,
 }
 
+
+impl FromStr for PayloadType {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_plain::from_str::<Self>(s).map_err(|_e| {
+            MessageBirdError::ParseError
+        })
+    }
+}
+
+impl ToString for PayloadType {
+    fn to_string(&self) -> String {
+        serde_plain::to_string(self).unwrap()
+    }
+}
+
 impl PayloadType {
     pub fn as_str(&self) -> &str {
         match self {

@@ -21,6 +21,21 @@ impl Direction {
     }
 }
 
+impl FromStr for Direction {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_plain::from_str::<Self>(s).map_err(|_e| {
+            MessageBirdError::ParseError
+        })
+    }
+}
+
+impl ToString for Direction {
+    fn to_string(&self) -> String {
+        serde_plain::to_string(self).unwrap()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Gateway(pub u32);
 
@@ -28,6 +43,22 @@ impl Deref for Gateway {
     type Target = u32;
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+
+impl FromStr for Gateway {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_plain::from_str::<Self>(s).map_err(|_e| {
+            MessageBirdError::ParseError
+        })
+    }
+}
+
+impl ToString for Gateway {
+    fn to_string(&self) -> String {
+        serde_plain::to_string(self).unwrap()
     }
 }
 

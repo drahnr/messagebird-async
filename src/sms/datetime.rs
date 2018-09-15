@@ -73,7 +73,6 @@ impl<'de> Deserialize<'de> for DateTime {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     static RAW: &str = r#""2016-05-03T14:26:57+00:00""#;
     deser_roundtrip!(datetime_deser, super::DateTime, RAW);
     serde_roundtrip!(datetime_serde, super::DateTime, super::DateTime::default());

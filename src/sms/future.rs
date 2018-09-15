@@ -6,25 +6,24 @@ use super::*;
 
 use futures::*;
 use hyper;
-use url;
 
 use hyper_rustls;
 
+use std::marker::PhantomData;
 
 pub type RequestMessages = Request<QueryMessages>;
 pub type RequestView = Request<QueryView>;
 pub type RequestSend = Request<QuerySend>;
 
 pub struct Request<T> {
-    client: hyper::client::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
-    query : Query<T>,
     future : Box<Future<Item=(),Error=MessageBirdError>>,
+    phantom : PhantomData<T>,
 }
 
 impl<T> Request<T> {
     pub fn new(query : Query<T>) -> Self {
         let https = hyper_rustls::HttpsConnector::new(4);
-        let mut client = hyper::client::Client::builder().build(https);
+        let client : hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
 
             // And then, if the request gets a response...
         let future = Box::new(client.get(query.deref().clone()).and_then(|res| {
@@ -55,9 +54,8 @@ impl<T> Request<T> {
         }));
 
         Self {
-            client,
-            query,
             future,
+            phantom : PhantomData,
         }
     }
 }

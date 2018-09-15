@@ -12,6 +12,7 @@ There are no immediate plans to support the Voice or Conversation API, if you fe
 
  - [x] serde impl for all relevant datatypes
  - [ ] roundtrip decode encode tests
+ - [ ] use [`crate eserde_plain`](https://docs.rs/serde_plain/0.3.0/serde_plain/) for `trait ToString` and `trait FromStr` for objects which are used in filters
  - [ ] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
  - [ ] send SMS example
  - [ ] future for querying SMS

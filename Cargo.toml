@@ -1,6 +1,6 @@
 [package]
 name = "messagebird-async"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["Bernhard Schuster <bernhard@ahoi.io>"]
 license = "MIT OR Apache-2.0"
 description = "Wrapper around the message bird API"
@@ -16,6 +16,7 @@ url = "^1.7.1"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+serde_plain = "0.3"
 failure = "0.1.2"
 failure_derive = "0.1.2"
 common_failures = "0.1.1"

@@ -67,6 +67,15 @@ pub enum Originator {
     Other(AlphaNumeric),
 }
 
+impl Originator {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Originator::TelephoneNumber(ref telephonenumber) => telephonenumber.as_str(),
+            Originator::Other(ref alphanumeric) => alphanumeric.as_str(),
+        }
+    }
+}
+
 impl FromStr for Originator {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -79,12 +88,20 @@ impl FromStr for Originator {
     }
 }
 
-impl Originator {
-    pub fn as_str(&self) -> &str {
-        match self {
-            Originator::TelephoneNumber(ref telephonenumber) => telephonenumber.as_str(),
-            Originator::Other(ref alphanumeric) => alphanumeric.as_str(),
-        }
+
+
+// impl FromStr for PayloadType {
+//     type Err = MessageBirdError;
+//     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//         serde_plain::from_str::<Self>(s).map_err(|_e| {
+//             MessageBirdError::ParseError
+//         })
+//     }
+// }
+
+impl ToString for Originator {
+    fn to_string(&self) -> String {
+        serde_plain::to_string(self).unwrap()
     }
 }
 

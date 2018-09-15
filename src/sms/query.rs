@@ -94,22 +94,22 @@ impl QueryBuilder<QueryMessages> {
         self
     }
 
-    pub fn sent_to(mut self, msisdn: &Msisdn) -> Self {
-        self.filter.push_str(&format!("&recipient={}", **msisdn));
+    pub fn sent_to(mut self, msisdn: Msisdn) -> Self {
+        self.filter.push_str(&format!("&recipient={}", *msisdn));
         self
     }
 
-    pub fn limit(mut self, limit: u32) -> Self {
-        self.filter.push_str(&format!("&limit={}", limit));
+    pub fn count(mut self, upper_limit: u32) -> Self {
+        self.filter.push_str(&format!("&limit={}", upper_limit));
         self
     }
 
-    pub fn skip_messages(mut self, skip: u32) -> Self {
+    pub fn skip(mut self, skip: u32) -> Self {
         self.filter.push_str(&format!("&offset={}", skip));
         self
     }
 
-    pub fn search_term(mut self, term: &str) -> Self {
+    pub fn contains_term(mut self, term: &str) -> Self {
         self.filter.push_str(&format!("&searchterm={}", term));
         self
     }

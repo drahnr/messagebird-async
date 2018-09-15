@@ -1,8 +1,12 @@
 use super::*;
 
+use serde_plain;
+
+pub use std::str::FromStr;
+pub use std::string::ToString;
+
 use std::ops::Deref;
 use std::slice::Iter;
-use std::str::FromStr;
 use std::time::Duration;
 
 mod datetime;
