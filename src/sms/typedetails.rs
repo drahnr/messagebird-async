@@ -63,6 +63,12 @@ impl TypeDetails {
     }
 }
 
+impl Default for TypeDetails {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Serialize for TypeDetails {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

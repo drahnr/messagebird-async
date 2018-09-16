@@ -62,20 +62,6 @@ impl ToString for Gateway {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(rename = "class")]
-pub enum MessageClass {
-    #[serde(rename = "0")]
-    Class0,
-    #[serde(rename = "1")]
-    Class1,
-    #[serde(rename = "2")]
-    Class2,
-    #[serde(rename = "3")]
-    Class3,
-}
-
-use std::collections::HashSet;
 
 // what is there to query
 // to send, only originator,body and recipients are mandatory
@@ -93,22 +79,24 @@ pub struct Message {
     id: Identifier,
     href: Option<CallbackUrl>,
     direction: Direction,
+    #[serde(rename = "type")]
     payload_type: PayloadType,
     originator: Originator,
     #[serde(rename = "body")]
     payload: Payload,
     reference: Option<String>,
+    #[serde(flatten)]
     report_url: Option<CallbackUrl>,
     validity: Option<Duration>,
     gateway: Option<Gateway>,
     #[serde(rename = "typeDetails")]
-    details: HashSet<TypeDetail>,
+    details: TypeDetails,
     #[serde(rename = "datacoding")]
     payload_encoding: PayloadEncoding,
     #[serde(rename = "mclass")]
     class: MessageClass,
     scheduled_datetime: Option<DateTime>,
-    creation_datetime: Option<DateTime>,
+    created_datetime: Option<DateTime>,
     recipients: Recipients,
 }
 
@@ -130,11 +118,11 @@ impl Default for Message {
             report_url: None,
             validity: None,
             gateway: None,
-            details: HashSet::new(),
+            details: TypeDetails::default(),
             payload_encoding: PayloadEncoding::Auto,
             class: MessageClass::Class0,
             scheduled_datetime: None,
-            creation_datetime: None,
+            created_datetime: None,
             recipients: Recipients::default(),
         }
     }
@@ -241,6 +229,7 @@ mod tests {
             )
             .origin(Originator::Other(AlphaNumeric("iamthesource".to_string())))
             .direction(Direction::SendToMobile)
+            .recipient(Recipient::new())
             .recipient(Recipient::new())
             .build()
     );

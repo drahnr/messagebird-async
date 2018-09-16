@@ -18,6 +18,9 @@ pub use self::callbackurl::*;
 mod identifier;
 pub use self::identifier::*;
 
+mod messageclass;
+pub use self::messageclass::*;
+
 mod message;
 pub use self::message::*;
 
