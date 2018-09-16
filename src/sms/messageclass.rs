@@ -5,7 +5,6 @@ use std::fmt;
 
 use num::FromPrimitive;
 
-
 #[derive(Debug, Eq, PartialEq)]
 pub enum MessageClass {
     Class0 = 0,
@@ -22,20 +21,19 @@ impl Default for MessageClass {
 
 impl FromPrimitive for MessageClass {
     fn from_i64(n: i64) -> Option<Self> {
-        if n<0 {
+        if n < 0 {
             None
         } else {
             Self::from_u64(n as u64)
         }
-
     }
     fn from_u64(n: u64) -> Option<Self> {
         match n {
-             0u64 => Some(MessageClass::Class0),
-             1u64 => Some(MessageClass::Class1),
-             2u64 => Some(MessageClass::Class2),
-             3u64 => Some(MessageClass::Class3),
-            _ => None
+            0u64 => Some(MessageClass::Class0),
+            1u64 => Some(MessageClass::Class1),
+            2u64 => Some(MessageClass::Class2),
+            3u64 => Some(MessageClass::Class3),
+            _ => None,
         }
     }
 }
@@ -74,7 +72,8 @@ impl<'de> Visitor<'de> for MessageClassVisitor {
     where
         E: de::Error,
     {
-        MessageClass::from_u64(value).ok_or(de::Error::invalid_value(Unexpected::Unsigned(value), &self))
+        MessageClass::from_u64(value)
+            .ok_or(de::Error::invalid_value(Unexpected::Unsigned(value), &self))
     }
 }
 
@@ -95,9 +94,5 @@ mod test {
 "#;
 
     deser_roundtrip!(messageclass_deser, MessageClass, RAW);
-    serde_roundtrip!(
-        messageclass_serde,
-        MessageClass,
-        MessageClass::default()
-    );
+    serde_roundtrip!(messageclass_serde, MessageClass, MessageClass::default());
 }

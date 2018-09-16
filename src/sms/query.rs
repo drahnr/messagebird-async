@@ -139,7 +139,8 @@ impl QueryBuilder<QueryMessages> {
         if self.filter.len() > 0 {
             base.push_str(&self.filter);
         }
-        Query::<QueryMessages>::parse(base.as_str()).expect("The builder should prevent parsing errors")
+        Query::<QueryMessages>::parse(base.as_str())
+            .expect("The builder should prevent parsing errors")
     }
 }
 

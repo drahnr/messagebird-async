@@ -24,9 +24,7 @@ impl Direction {
 impl FromStr for Direction {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_plain::from_str::<Self>(s).map_err(|_e| {
-            MessageBirdError::ParseError
-        })
+        serde_plain::from_str::<Self>(s).map_err(|_e| MessageBirdError::ParseError)
     }
 }
 
@@ -46,13 +44,10 @@ impl Deref for Gateway {
     }
 }
 
-
 impl FromStr for Gateway {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_plain::from_str::<Self>(s).map_err(|_e| {
-            MessageBirdError::ParseError
-        })
+        serde_plain::from_str::<Self>(s).map_err(|_e| MessageBirdError::ParseError)
     }
 }
 
@@ -61,7 +56,6 @@ impl ToString for Gateway {
         serde_plain::to_string(self).unwrap()
     }
 }
-
 
 // what is there to query
 // to send, only originator,body and recipients are mandatory
@@ -101,59 +95,70 @@ pub struct Message {
 }
 
 /// SendableMessage is an object that can be passed on to MessageBird API to trigger sending a SMS
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct SendableMessage {
-    // TODO
+    // mandatory
+    originator: Originator,
+    payload: Payload,
+    recipients: Recipients,
+    // optionals
+    payload_type: Option<PayloadType>,
+    reference: Option<String>,
+    report_url: Option<CallbackUrl>,
+    validity: Option<Duration>,
+    gateway: Option<Gateway>,
+    #[serde(rename = "typeDetails")]
+    details: Option<TypeDetails>,
+    #[serde(rename = "datacoding")]
+    payload_encoding: Option<PayloadEncoding>,
+    #[serde(rename = "mclass")]
+    class: Option<MessageClass>,
+    scheduled_datetime: Option<DateTime>,
+    // creation date is inferred by API usage
 }
 
-impl Default for Message {
+impl Default for SendableMessage {
     fn default() -> Self {
         Self {
-            id: Identifier::default(),
-            href: None,
-            direction: Direction::Invalid,
-            payload_type: PayloadType::Sms,
+            payload_type: Some(PayloadType::Sms),
             originator: Originator::Other(AlphaNumeric("invalid".to_string())),
             payload: Payload::Text("This is a default message".to_string()),
             reference: None,
             report_url: None,
             validity: None,
             gateway: None,
-            details: TypeDetails::default(),
-            payload_encoding: PayloadEncoding::Auto,
-            class: MessageClass::Class0,
+            details: None,
+            payload_encoding: Some(PayloadEncoding::Auto),
+            class: Some(MessageClass::Class0),
             scheduled_datetime: None,
-            created_datetime: None,
             recipients: Recipients::default(),
         }
     }
 }
 
-impl Message {
-    pub fn builder() -> MessageBuilder {
-        MessageBuilder {
-            message: Message::default(),
+impl SendableMessage {
+    pub fn builder() -> Builder {
+        Builder {
+            message: SendableMessage::default(),
         }
     }
 }
 
-pub struct MessageBuilder {
-    message: Message,
+pub struct Builder {
+    message: SendableMessage,
 }
 
-impl MessageBuilder {
+impl Builder {
     pub fn payload(
         mut self,
         payload_type: PayloadType,
         payload: Payload,
         payload_encoding: PayloadEncoding,
     ) -> Self {
-        self.message.payload_type = payload_type;
-        self.message.payload_encoding = payload_encoding;
+        self.message.payload_type = Some(payload_type);
+        self.message.payload_encoding = Some(payload_encoding);
         self.message.payload = payload;
-        self
-    }
-    pub fn href(mut self, href: CallbackUrl) -> Self {
-        self.message.href = Some(href);
         self
     }
     pub fn report_url(mut self, report_url: CallbackUrl) -> Self {
@@ -164,19 +169,23 @@ impl MessageBuilder {
         self.message.originator = originator;
         self
     }
-    pub fn direction(mut self, direction: Direction) -> Self {
-        self.message.direction = direction;
-        self
-    }
-    pub fn recipient(mut self, recipient: Recipient) -> Self {
+    // pub fn href(mut self, href: CallbackUrl) -> Self {
+    //     self.message.href = Some(href);
+    //     self
+    // }
+    // pub fn direction(mut self, direction: Direction) -> Self {
+    //     self.message.direction = direction;
+    //     self
+    // }
+    // pub fn identifier(mut self, identifier: Identifier) -> Self {
+    //     self.message.id = identifier;
+    //     self
+    // }
+    pub fn add_recipient(mut self, recipient: Recipient) -> Self {
         self.message.recipients.add(recipient);
         self
     }
-    pub fn identifier(mut self, identifier: Identifier) -> Self {
-        self.message.id = identifier;
-        self
-    }
-    pub fn build(self) -> Message {
+    pub fn build(self) -> SendableMessage {
         self.message
     }
 }
@@ -219,18 +228,17 @@ mod tests {
 
     deser_roundtrip!(message_deser, Message, RAW);
     serde_roundtrip!(
-        message_serde,
-        Message,
-        Message::builder()
+        sendable_serde,
+        SendableMessage,
+        SendableMessage::builder()
             .payload(
                 PayloadType::Sms,
                 Payload::Text("fun".to_string()),
                 PayloadEncoding::Auto
             )
-            .origin(Originator::Other(AlphaNumeric("iamthesource".to_string())))
-            .direction(Direction::SendToMobile)
-            .recipient(Recipient::new())
-            .recipient(Recipient::new())
+            .origin(AlphaNumeric("iamthesource".to_string()).into())
+            .add_recipient(Recipient::new())
+            .add_recipient(Recipient::new())
             .build()
     );
 }

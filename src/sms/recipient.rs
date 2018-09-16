@@ -30,9 +30,7 @@ impl Msisdn {
 impl FromStr for Msisdn {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_plain::from_str::<Self>(s).map_err(|_e| {
-            MessageBirdError::ParseError
-        })
+        serde_plain::from_str::<Self>(s).map_err(|_e| MessageBirdError::ParseError)
     }
 }
 
@@ -68,13 +66,10 @@ impl Status {
     }
 }
 
-
 impl FromStr for Status {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_plain::from_str::<Self>(s).map_err(|_e| {
-            MessageBirdError::ParseError
-        })
+        serde_plain::from_str::<Self>(s).map_err(|_e| MessageBirdError::ParseError)
     }
 }
 

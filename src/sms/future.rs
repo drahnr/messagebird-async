@@ -1,7 +1,6 @@
 /// Query a list of messages
-/// 
+///
 /// Still needs some work and the names are garbage
-
 use super::*;
 
 use futures::*;
@@ -16,17 +15,18 @@ pub type RequestView = Request<QueryView>;
 pub type RequestSend = Request<QuerySend>;
 
 pub struct Request<T> {
-    future : Box<Future<Item=(),Error=MessageBirdError>>,
-    phantom : PhantomData<T>,
+    future: Box<Future<Item = (), Error = MessageBirdError>>,
+    phantom: PhantomData<T>,
 }
 
 impl<T> Request<T> {
-    pub fn new(query : Query<T>) -> Self {
+    pub fn new(query: Query<T>) -> Self {
         let https = hyper_rustls::HttpsConnector::new(4);
-        let client : hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
+        let client: hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
 
-            // And then, if the request gets a response...
-        let future = Box::new(client.get(query.deref().clone()).and_then(|res| {
+        // And then, if the request gets a response...
+        let future = Box::new(
+            client.get(query.deref().clone()).and_then(|res| {
             println!("status: {}", res.status());
 
             // Concatenate the body stream into a single buffer...
@@ -51,11 +51,12 @@ impl<T> Request<T> {
         .map_err(|err| {
             println!("error: {}", err);
             MessageBirdError::ServiceError{code: 666}
-        }));
+        }),
+        );
 
         Self {
             future,
-            phantom : PhantomData,
+            phantom: PhantomData,
         }
     }
 }
@@ -63,7 +64,7 @@ impl<T> Request<T> {
 impl<T> Future for Request<T> {
     type Item = ();
     type Error = MessageBirdError;
-    fn poll(&mut self) -> Result<Async<Self::Item>,Self::Error> {
+    fn poll(&mut self) -> Result<Async<Self::Item>, Self::Error> {
         self.future.poll()
     }
 }

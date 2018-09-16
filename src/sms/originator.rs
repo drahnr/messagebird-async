@@ -88,8 +88,6 @@ impl FromStr for Originator {
     }
 }
 
-
-
 // impl FromStr for PayloadType {
 //     type Err = MessageBirdError;
 //     fn from_str(s: &str) -> Result<Self, Self::Err> {

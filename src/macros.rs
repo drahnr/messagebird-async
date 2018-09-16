@@ -16,7 +16,8 @@ macro_rules! serde_roundtrip {
             println!("obj original = {:?}", obj);
             let obj_json = serde_json::to_string(&obj).expect("Failed to serialize obj to json");
             println!("json = {}", obj_json);
-            let obj_recovered: $ty = serde_json::from_str(obj_json.as_str()).expect("Failed to deserialize obj from json");
+            let obj_recovered: $ty = serde_json::from_str(obj_json.as_str())
+                .expect("Failed to deserialize obj from json");
             println!("obj recovered = {:?}", obj_recovered);
             assert_eq!(obj, obj_recovered);
         }
@@ -38,9 +39,11 @@ macro_rules! deser_roundtrip {
             let obj_json = ::macros::RE.replace_all(obj_json, regex::NoExpand(""));
 
             println!("json original = {}", obj_json);
-            let obj: $ty = serde_json::from_str(&obj_json).expect("Failed to deserialize obj from json");
+            let obj: $ty =
+                serde_json::from_str(&obj_json).expect("Failed to deserialize obj from json");
             println!("obj = {:?}", obj);
-            let obj_json_recovered = serde_json::to_string(&obj).expect("Failed to serialize obj to json");
+            let obj_json_recovered =
+                serde_json::to_string(&obj).expect("Failed to serialize obj to json");
             println!("json recovered = {}", obj_json_recovered);
             assert_eq!(obj_json, obj_json_recovered);
         }
