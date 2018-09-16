@@ -10,7 +10,6 @@ For a full example checkout `src/basic.rs` which will be inlined once the API be
 
 Currently the planned features only include to send SMS and query SMS stati.
 
-There are no immediate plans to support the [`VoiceCalling`](https://developers.messagebird.com/docs/voice-messaging), [`VoiceMessaging`](https://developers.messagebird.com/docs/voice-messaging) or [`Conversation`](https://developers.messagebird.com/docs/conversations) API, if you feel like doing the work, I am happy to review PRs and integrate. [`Contacts`] API might be implemented since it can be used with the [`SMS Messaging`] API, but is a low prio.
 
 ## RoadMap
 
@@ -22,7 +21,18 @@ There are no immediate plans to support the [`VoiceCalling`](https://developers.
  - [ ] future for querying SMS
  - [ ] useful examples using [tokio](https://tokio.rs) as executor
  - [ ] future for callback on SMS reception
- - [ ] `Contacts` API (very low priority)
+
+
+## MessageBird APIs
+
+ - [ ] [`SMS`](https://rest.messagebird.com/messages) (WIP)
+ - [ ] [`Contacts`](https://rest.messagebird.com/contacts) (low prio)
+ - [ ] [`MMS`](https://rest.messagebird.com/mms) (*)
+ - [ ] [`Conversation`](https://developers.messagebird.com/docs/conversations) (*)
+ - [ ] [`VoiceMessaging`](https://developers.messagebird.com/docs/voice-messaging) (*)
+ - [ ] [`VoiceCalling`](https://developers.messagebird.com/docs/voice) (*)
+
+* = not planned, unless external contributors step up
 
 ## License
 
