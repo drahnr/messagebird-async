@@ -1,16 +1,19 @@
 extern crate chrono;
 extern crate messagebird_async;
+extern crate tokio_core;
+extern crate log;
 
 use chrono::prelude::*;
+use messagebird_async::errors::*;
 use messagebird_async::sms;
 use messagebird_async::sms::*;
 
-fn main() {
-    let q: Query<QueryMessages> = Query::<QueryMessages>::builder()
-        .from(sms::DateTime::now())
-        .until(sms::DateTime::now())
-        .with_status(Status::Sent)
-        .build();
+fn main() -> Result<(), MessageBirdError> {
+    // let q: Query<QueryMessages> = Query::<QueryMessages>::builder()
+    //     .from(sms::DateTime::now())
+    //     .until(sms::DateTime::now())
+    //     .with_status(Status::Sent)
+    //     .build();
 
     let q: Query<QueryMessages> = Query::<QueryMessages>::builder()
         .with_payload_type(PayloadType::from_str("").unwrap())
@@ -21,4 +24,7 @@ fn main() {
         .contains_term("fun").skip(5).count(10).build();
 
     let fut = RequestMessages::new(q); //.and_then();
+
+    let mut core = tokio_core::reactor::Core::new().unwrap();
+    core.run(fut)
 }
