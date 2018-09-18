@@ -38,6 +38,10 @@ impl<T> Query<T> {
     pub fn to_string(&self) -> String {
         format!("{}", self)
     }
+
+    pub fn uri(&self) -> hyper::Uri {
+        self.uri.clone()
+    }
 }
 
 impl<T> Deref for Query<T> {
@@ -160,5 +164,12 @@ impl QueryBuilder<QueryView> {
             base.push_str(&self.filter);
         }
         Query::<QueryView>::parse(base.as_str()).expect("The builder should prevent parsing errors")
+    }
+}
+
+impl QueryBuilder<QuerySend> {
+    pub fn build(self) -> Query<QuerySend> {
+        Query::<QuerySend>::parse("https://rest.messagebird.com/messages")
+            .expect("The builder should prevent parsing errors")
     }
 }

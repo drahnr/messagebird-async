@@ -32,7 +32,7 @@ Currently the planned features only include to send SMS and query SMS stati.
  - [ ] [`VoiceMessaging`](https://developers.messagebird.com/docs/voice-messaging) (*)
  - [ ] [`VoiceCalling`](https://developers.messagebird.com/docs/voice) (*)
 
-* = not planned, unless external contributors step up
+\* = not planned, unless external contributors step up
 
 ## License
 
@@ -40,9 +40,9 @@ MIT or Apache-2.0
 
 If neither of those works for you, feel free to request so via a github issue.
 
-## Affiliation/Sponsoring
+## Donations
 
 Since I am not affiliated with MessageBird in any kind (other than being their customer)
-I'd be delighted to if you'd leave a tipp
+I'd be delighted if you'd leave a tipp
 
 [![LiberaPayButton](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/drahnr/donate)

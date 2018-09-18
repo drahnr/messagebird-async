@@ -1,6 +1,6 @@
 [package]
 name = "messagebird-async"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Bernhard Schuster <bernhard@ahoi.io>"]
 license = "MIT OR Apache-2.0"
 description = "Wrapper around the message bird SMS API"
@@ -28,4 +28,5 @@ log = "0.4"
 num = "0.2"
 
 [dev-dependencies]
-tokio-core = "0.1.7"
+tokio-core = "0.1"
+env_logger = "0.5"

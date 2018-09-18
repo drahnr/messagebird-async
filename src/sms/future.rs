@@ -8,50 +8,88 @@ use hyper;
 
 use hyper_rustls;
 
+use std::fmt;
 use std::marker::PhantomData;
 
-pub type RequestMessages = Request<QueryMessages>;
-pub type RequestView = Request<QueryView>;
-pub type RequestSend = Request<QuerySend>;
+#[derive(Debug, Clone)]
+pub struct AccessKey(String);
 
-pub struct Request<T> {
-    future: Box<Future<Item = (), Error = MessageBirdError>>,
+impl Deref for AccessKey {
+    type Target = String;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromStr for AccessKey {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // TODO eval length
+        Ok(AccessKey(s.to_string()))
+    }
+}
+
+impl From<String> for AccessKey {
+    fn from(s: String) -> Self {
+        AccessKey(s)
+    }
+}
+
+impl fmt::Display for AccessKey {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+pub type RequestMessages = Request<QueryMessages, Vec<Message>>;
+pub type RequestView = Request<QueryView, Message>;
+pub type RequestSend = Request<QuerySend, ()>;
+
+pub struct Request<T, R> {
+    future: Box<Future<Item = R, Error = MessageBirdError>>,
     phantom: PhantomData<T>,
 }
 
-impl<T> Request<T> {
-    pub fn new(query: Query<T>) -> Self {
+impl<T, R> Future for Request<T, R> {
+    type Item = R;
+    type Error = MessageBirdError;
+    fn poll(&mut self) -> Result<Async<Self::Item>, Self::Error> {
+        self.future.poll()
+    }
+}
+
+impl Request<QuerySend, ()> {
+    pub fn new(sendable: &SendableMessage, accesskey: &AccessKey) -> Self {
+        let query: Query<QuerySend> = Query::<QuerySend>::builder().build();
+
         let https = hyper_rustls::HttpsConnector::new(4);
         let client: hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
 
+        let mut request = hyper::Request::builder();
+        request.uri(query.uri());
+        request.method(hyper::Method::POST);
+        request.header("Authorization", format!("AccessKey {}", accesskey));
+        let json = serde_json::to_string(sendable).expect("Object is not serilializable");
+        debug!("send SMS json: {}", json);
+        let request = request.body(hyper::Body::from(json)).unwrap();
+
         // And then, if the request gets a response...
         let future = Box::new(
-            client.get(query.deref().clone()).and_then(|res| {
-            println!("status: {}", res.status());
+            client
+                .request(request)
+                .map_err(|_e| MessageBirdError::RequestError)
+                .and_then(|res| {
+                    let status = res.status();
+                    debug!("send: status: {}", status);
 
-            // Concatenate the body stream into a single buffer...
-            // This returns a new future, since we must stream body.
-            res.into_body().concat2()
-        })
-
-        // And then, if reading the full body succeeds...
-        .and_then(|body| {
-            // The body is just bytes, but let's print a string...
-            let s = ::std::str::from_utf8(&body)
-                .expect("http bin sends utf-8 JSON");
-
-            println!("body: {}", s);
-
-            // and_then requires we return a new Future, and it turns
-            // out that Result is a Future that is ready immediately.
-            Ok(())
-        })
-
-        // Map any errors that might have happened...
-        .map_err(|err| {
-            println!("error: {}", err);
-            MessageBirdError::ServiceError{code: 666}
-        }),
+                    if hyper::StatusCode::OK == status {
+                        futures::future::ok(())
+                    } else {
+                        futures::future::err(MessageBirdError::ServiceError {
+                            code: status.as_u16(),
+                        })
+                    }
+                }),
         );
 
         Self {
@@ -61,10 +99,84 @@ impl<T> Request<T> {
     }
 }
 
-impl<T> Future for Request<T> {
-    type Item = ();
-    type Error = MessageBirdError;
-    fn poll(&mut self) -> Result<Async<Self::Item>, Self::Error> {
-        self.future.poll()
+fn request_future_with_json_response<T>(
+    client: &mut hyper::Client<
+        hyper_rustls::HttpsConnector<hyper::client::HttpConnector>,
+        hyper::Body,
+    >,
+    request: hyper::Request<hyper::Body>,
+) -> impl Future<Item = T, Error = MessageBirdError>
+where
+    T: 'static + Sized + Send + Sync + for<'de> serde::de::Deserialize<'de>,
+{
+    let fut = client
+            .request(request)
+            .map_err(|_e: hyper::Error| MessageBirdError::RequestError)
+            .and_then(|response: hyper::Response<hyper::Body>| {
+                let status = response.status();
+                debug!("rest status code: {}", status);
+
+                if status == hyper::StatusCode::OK {
+                    futures::future::ok(response)
+                } else {
+                    futures::future::err(MessageBirdError::ServiceError {
+                        code: status.as_u16(),
+                    })
+                }
+            })
+            .and_then(|response: hyper::Response<hyper::Body>| {
+                let body: hyper::Body = response.into_body();
+                body.concat2().map_err(|_e| MessageBirdError::RequestError)
+                // returns a hyper::Chunk!
+            })
+            // use the body after concatenation
+            .and_then(|body| {
+                // try to parse as json with serde_json
+                let obj = serde_json::from_slice::<T>(&body).map_err(|_e| MessageBirdError::ParseError)?;
+                Ok(obj)
+            })  
+            .map_err(|_e| MessageBirdError::ParseError);
+    fut
+}
+
+impl Request<QueryView, Message> {
+    pub fn new(query: &Query<QueryView>, accesskey: &AccessKey) -> Self {
+        let https = hyper_rustls::HttpsConnector::new(4);
+        let mut client: hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
+
+        let mut request = hyper::Request::builder();
+        request.uri(query.uri());
+        request.method(hyper::Method::GET);
+        request.header("Authorization", format!("AccessKey {}", accesskey));
+        let request: hyper::Request<_> = request.body(hyper::Body::empty()).unwrap();
+
+        let future = request_future_with_json_response::<Message>(&mut client, request);
+        // TODO avoid this boxing if possible
+        let future = Box::new(future);
+        Self {
+            future,
+            phantom: PhantomData,
+        }
+    }
+}
+
+impl Request<QueryMessages, Vec<Message>> {
+    pub fn new(query: &Query<QueryMessages>, accesskey: &AccessKey) -> Self {
+        let https = hyper_rustls::HttpsConnector::new(4);
+        let mut client: hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
+
+        let mut request = hyper::Request::builder();
+        request.uri(query.uri());
+        request.method(hyper::Method::GET);
+        request.header("Authorization", format!("AccessKey {}", accesskey));
+        let request: hyper::Request<_> = request.body(hyper::Body::empty()).unwrap();
+
+        let future = request_future_with_json_response::<Vec<Message>>(&mut client, request);
+        // TODO avoid this boxing if possible
+        let future = Box::new(future);
+        Self {
+            future,
+            phantom: PhantomData,
+        }
     }
 }

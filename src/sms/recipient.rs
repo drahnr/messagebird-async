@@ -91,9 +91,9 @@ pub struct Recipient {
 }
 
 impl Recipient {
-    pub fn new() -> Self {
+    pub fn new(number: u64) -> Self {
         Self {
-            msisdn: Msisdn(0),
+            msisdn: Msisdn(number),
             status: None,
             status_datetime: None,
         }
