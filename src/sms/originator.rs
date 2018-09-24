@@ -76,6 +76,12 @@ impl Originator {
     }
 }
 
+impl Default for Originator {
+    fn default() -> Self {
+        AlphaNumeric::from_str("inbox").unwrap().into()
+    }
+}
+
 impl FromStr for Originator {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

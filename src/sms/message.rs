@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "direction")]
 pub enum Direction {
     #[serde(rename = "mt")]
@@ -94,102 +94,6 @@ pub struct Message {
     recipients: Recipients,
 }
 
-/// SendableMessage is an object that can be passed on to MessageBird API to trigger sending a SMS
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct SendableMessage {
-    // mandatory
-    originator: Originator,
-    payload: Payload,
-    recipients: Recipients,
-    // optionals
-    payload_type: Option<PayloadType>,
-    reference: Option<String>,
-    report_url: Option<CallbackUrl>,
-    validity: Option<Duration>,
-    gateway: Option<Gateway>,
-    #[serde(rename = "typeDetails")]
-    details: Option<TypeDetails>,
-    #[serde(rename = "datacoding")]
-    payload_encoding: Option<PayloadEncoding>,
-    #[serde(rename = "mclass")]
-    class: Option<MessageClass>,
-    scheduled_datetime: Option<DateTime>,
-    // creation date is inferred by API usage
-}
-
-impl Default for SendableMessage {
-    fn default() -> Self {
-        Self {
-            payload_type: Some(PayloadType::Sms),
-            originator: Originator::Other(AlphaNumeric("invalid".to_string())),
-            payload: Payload::Text("This is a default message".to_string()),
-            reference: None,
-            report_url: None,
-            validity: None,
-            gateway: None,
-            details: None,
-            payload_encoding: Some(PayloadEncoding::Auto),
-            class: Some(MessageClass::Class0),
-            scheduled_datetime: None,
-            recipients: Recipients::default(),
-        }
-    }
-}
-
-impl SendableMessage {
-    pub fn builder() -> Builder {
-        Builder {
-            message: SendableMessage::default(),
-        }
-    }
-}
-
-pub struct Builder {
-    message: SendableMessage,
-}
-
-impl Builder {
-    pub fn payload(
-        mut self,
-        payload_type: PayloadType,
-        payload: Payload,
-        payload_encoding: PayloadEncoding,
-    ) -> Self {
-        self.message.payload_type = Some(payload_type);
-        self.message.payload_encoding = Some(payload_encoding);
-        self.message.payload = payload;
-        self
-    }
-    pub fn report_url(mut self, report_url: CallbackUrl) -> Self {
-        self.message.report_url = Some(report_url); // FIXME
-        self
-    }
-    pub fn origin(mut self, originator: Originator) -> Self {
-        self.message.originator = originator;
-        self
-    }
-    // pub fn href(mut self, href: CallbackUrl) -> Self {
-    //     self.message.href = Some(href);
-    //     self
-    // }
-    // pub fn direction(mut self, direction: Direction) -> Self {
-    //     self.message.direction = direction;
-    //     self
-    // }
-    // pub fn identifier(mut self, identifier: Identifier) -> Self {
-    //     self.message.id = identifier;
-    //     self
-    // }
-    pub fn add_recipient(mut self, recipient: Recipient) -> Self {
-        self.message.recipients.add(recipient);
-        self
-    }
-    pub fn build(self) -> SendableMessage {
-        self.message
-    }
-}
-
 #[cfg(test)]
 mod tests {
 
@@ -227,18 +131,4 @@ mod tests {
 "#;
 
     deser_roundtrip!(message_deser, Message, RAW);
-    serde_roundtrip!(
-        sendable_serde,
-        SendableMessage,
-        SendableMessage::builder()
-            .payload(
-                PayloadType::Sms,
-                Payload::Text("fun".to_string()),
-                PayloadEncoding::Auto
-            )
-            .origin(AlphaNumeric("iamthesource".to_string()).into())
-            .add_recipient(Recipient::new())
-            .add_recipient(Recipient::new())
-            .build()
-    );
 }

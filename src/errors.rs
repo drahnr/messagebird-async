@@ -16,4 +16,7 @@ pub enum MessageBirdError {
 
     #[fail(display = "sending request failed")]
     RequestError,
+
+    #[fail(display = "did not find a valid access key {}", msg)]
+    AccessKeyError { msg: String },
 }

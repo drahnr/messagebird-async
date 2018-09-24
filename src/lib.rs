@@ -13,6 +13,8 @@ extern crate serde_json;
 
 extern crate serde_plain;
 
+extern crate serde_url_params;
+
 extern crate chrono;
 extern crate url;
 use url::Url;

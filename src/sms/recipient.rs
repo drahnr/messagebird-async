@@ -1,7 +1,7 @@
 use super::*;
 
 // requires manual Serialize/Deserialize impl
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "msisdn")]
 pub struct Msisdn(u64);
 
@@ -18,11 +18,11 @@ impl Deref for Msisdn {
 impl Msisdn {
     pub fn new(raw: u64) -> Result<Self, MessageBirdError> {
         if raw != 0 {
+            Ok(Msisdn(raw))
+        } else {
             Err(MessageBirdError::TypeError {
                 msg: format!("Invalid phone number: {}", raw),
             })
-        } else {
-            Ok(Msisdn(raw))
         }
     }
 }
@@ -40,7 +40,7 @@ impl ToString for Msisdn {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
     Unknown,
@@ -104,11 +104,26 @@ impl Recipient {
 mod test {
     use super::*;
 
-    static RAW: &str = r#"{
+    serde_roundtrip!(recipient_serde, Recipient, Recipient::new(1234512345));
+
+    static RAW_1: &str = r#"{
 "recipient": 23747,
 "status": "delivery_failed",
 "statusDatetime" : "2016-05-03T14:26:57+00:00"
 }"#;
-    deser_roundtrip!(recipient_deser, Recipient, RAW);
-    serde_roundtrip!(recipient_serde, Recipient, Recipient::new());
+    deser_roundtrip!(recipient_sample1_deser, Recipient, RAW_1);
+
+    //only one or the other can work at the same time, since serialize can only work one way at a time
+    //     static RAW_2: &str = r#"{
+    // "recipient": 23747,
+    // }"#;
+    //deser_roundtrip!(recipient_sample3_deser, Recipient, RAW_2);
+
+    static RAW_3: &str = r#"{
+    "recipient": 23747,
+    "status": null,
+    "statusDatetime" : null
+    }"#;
+
+    deser_roundtrip!(recipient_sample2_deser, Recipient, RAW_3);
 }

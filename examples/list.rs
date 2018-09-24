@@ -11,6 +11,7 @@ use futures::future::Future;
 use messagebird_async::errors::*;
 use messagebird_async::sms;
 use messagebird_async::sms::*;
+use std::env;
 
 fn main() -> Result<(), MessageBirdError> {
     env_logger::init();
@@ -24,17 +25,14 @@ fn main() -> Result<(), MessageBirdError> {
     let q: Query<QueryMessages> = Query::<QueryMessages>::builder()
         .with_payload_type(PayloadType::from_str("").unwrap())
         .with_direction(Direction::from_str("").unwrap())
-        .originating_from(Originator::from_str("198765432").unwrap())
-        .sent_to(Msisdn::from_str("123456789").unwrap())
+        .originating_from(Originator::from_str("491637734321").unwrap())
+        .sent_to(Msisdn::new(491637734321).unwrap())
         //.with_contact()
         .contains_term("fun").skip(5).count(10).build();
 
-    let accesskey = AccessKey::from_str("abc123")?;
+    let accesskey = AccessKey::from_env()?;
     let fut = RequestMessages::new(&q, &accesskey); //.and_then();
 
     let mut core = tokio_core::reactor::Core::new().unwrap();
-    core.run(fut.map(|x| {
-        log!("Result: {:?}", x);
-        ()
-    }))
+    core.run(fut.map(|_| ()))
 }
