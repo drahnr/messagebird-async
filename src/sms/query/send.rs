@@ -75,8 +75,9 @@ impl fmt::Display for QuerySend {
 }
 
 impl Query for QuerySend {
-    fn as_uri(&self) -> hyper::Uri {
-        let uri: hyper::Uri = self.to_string()
+    fn uri(&self) -> hyper::Uri {
+        let uri: hyper::Uri = self
+            .to_string()
             .parse()
             .expect("Failed to parse send query object to hyper::Uri");
         uri

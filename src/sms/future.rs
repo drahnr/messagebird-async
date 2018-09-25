@@ -87,13 +87,15 @@ where
                 let status = response.status();
                 debug!("rest status code: {}", status);
 
-                if status == hyper::StatusCode::OK {
+                // if status == hyper::StatusCode::OK {
                     futures::future::ok(response)
-                } else {
-                    futures::future::err(MessageBirdError::ServiceError {
-                        code: status.as_u16(),
-                    })
-                }
+                // } else {
+                //     futures::future::err(MessageBirdError::ServiceError {
+                //         code: status.as_u16(),
+                //         description : "TODO".to_string(),
+                //         parameter : None,
+                //     })
+                // }
             })
             .and_then(|response: hyper::Response<hyper::Body>| {
                 let body: hyper::Body = response.into_body();
@@ -120,12 +122,31 @@ where
         let mut client: hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
 
         let mut request = hyper::Request::builder();
-        request.uri(query.as_uri());
+        request.uri(query.uri());
         request.method(query.method());
-        request.header(hyper::header::AUTHORIZATION, format!("AccessKey {}", accesskey));
-        request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
+        request.header(
+            hyper::header::AUTHORIZATION,
+            format!("AccessKey {}", accesskey),
+        );
 
-        let request: hyper::Request<_> = request.body(hyper::Body::empty()).unwrap();
+        // XXX refactor needed - badly needed
+        let request: hyper::Request<_> = if query.method() == hyper::Method::POST {
+            request.header(
+                hyper::header::CONTENT_TYPE,
+                format!("application/x-www-form-urlencoded"),
+            );
+            if let Some(body) = query.uri().query() {
+                let body = body.to_string();
+                request.header(hyper::header::CONTENT_LENGTH, format!("{}", body.len()));
+                request.body(body.into()).unwrap()
+            } else {
+                request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
+                request.body(hyper::Body::empty()).unwrap()
+            }
+        } else {
+            request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
+            request.body(hyper::Body::empty()).unwrap()
+        };
 
         let future = request_future_with_json_response::<R>(&mut client, request);
         // TODO avoid this boxing if possible

@@ -61,8 +61,9 @@ impl fmt::Display for QueryList {
 }
 
 impl Query for QueryList {
-    fn as_uri(&self) -> hyper::Uri {
-        let uri: hyper::Uri = self.to_string()
+    fn uri(&self) -> hyper::Uri {
+        let uri: hyper::Uri = self
+            .to_string()
             .parse()
             .expect("Failed to parse list query object to hyper::Uri");
         uri
@@ -174,6 +175,9 @@ mod tests {
 
         let url_params_str = serde_url_params::to_string(&url_params).unwrap();
         println!("list params are \"{}\"", url_params_str);
-        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages?recipient=123475&searchterm=fun".to_string());
+        assert_eq!(
+            url_params.to_string(),
+            "https://rest.messagebird.com/messages?recipient=123475&searchterm=fun".to_string()
+        );
     }
 }

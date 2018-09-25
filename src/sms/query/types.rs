@@ -2,12 +2,12 @@ use super::*;
 
 use serde::ser::{Serialize, Serializer};
 
+use hyper;
 use std::fmt;
 use std::string::ToString;
-use hyper;
 
 pub trait Query {
-    fn as_uri(&self) -> hyper::Uri;
+    fn uri(&self) -> hyper::Uri;
     fn method(&self) -> hyper::Method {
         hyper::Method::GET
     }

@@ -35,7 +35,7 @@ impl fmt::Display for QueryView {
 }
 
 impl Query for QueryView {
-    fn as_uri(&self) -> hyper::Uri {
+    fn uri(&self) -> hyper::Uri {
         let uri: hyper::Uri = self.to_string().parse().unwrap();
         uri
     }
@@ -51,6 +51,9 @@ mod tests {
         println!("view obj {:?}", url_params);
         let url_params_str = serde_url_params::to_string(&url_params).unwrap();
         println!("view params are \"{}\"", url_params_str);
-        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages/someid".to_string());
+        assert_eq!(
+            url_params.to_string(),
+            "https://rest.messagebird.com/messages/someid".to_string()
+        );
     }
 }

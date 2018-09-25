@@ -9,7 +9,11 @@ pub enum MessageBirdError {
     TypeError { msg: String },
 
     #[fail(display = "service return code: {}/{}/{:?}", code, description, parameter)]
-    ServiceError { code: u16, description : String, parameter : Option<String> },
+    ServiceError {
+        code: u16,
+        description: String,
+        parameter: Option<String>,
+    },
 
     #[fail(display = "parsing failed")]
     ParseError,
