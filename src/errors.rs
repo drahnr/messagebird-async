@@ -8,8 +8,8 @@ pub enum MessageBirdError {
     #[fail(display = "invalid paramter for type: {}", msg)]
     TypeError { msg: String },
 
-    #[fail(display = "service return code: {}", code)]
-    ServiceError { code: u16 },
+    #[fail(display = "service return code: {}/{}/{:?}", code, description, parameter)]
+    ServiceError { code: u16, description : String, parameter : Option<String> },
 
     #[fail(display = "parsing failed")]
     ParseError,

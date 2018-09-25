@@ -79,6 +79,7 @@ fn request_future_with_json_response<T>(
 where
     T: 'static + Sized + Send + Sync + for<'de> serde::de::Deserialize<'de>,
 {
+    debug!("request {:?}", request);
     let fut = client
             .request(request)
             .map_err(|_e: hyper::Error| MessageBirdError::RequestError)
@@ -101,11 +102,11 @@ where
             })
             // use the body after concatenation
             .and_then(|body| {
+                debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
                 // try to parse as json with serde_json
                 let obj = serde_json::from_slice::<T>(&body).map_err(|_e| MessageBirdError::ParseError)?;
                 Ok(obj)
-            })
-                        .map_err(|_e| MessageBirdError::ParseError);
+            });
     fut
 }
 
@@ -121,7 +122,9 @@ where
         let mut request = hyper::Request::builder();
         request.uri(query.as_uri());
         request.method(query.method());
-        request.header("Authorization", format!("AccessKey {}", accesskey));
+        request.header(hyper::header::AUTHORIZATION, format!("AccessKey {}", accesskey));
+        request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
+
         let request: hyper::Request<_> = request.body(hyper::Body::empty()).unwrap();
 
         let future = request_future_with_json_response::<R>(&mut client, request);

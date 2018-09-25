@@ -9,7 +9,7 @@ pub struct QuerySend {
     #[serde(rename = "body")]
     payload: Payload,
     // TODO this can actually be a mixture of Msisdns and group ids
-    #[serde(rename = "recipient")]
+    #[serde(rename = "recipients")]
     recipients: Vec<QueryRecipient>,
     // optionals, which should just not be there compared to : null
     #[serde(rename = "type")]
@@ -126,6 +126,7 @@ mod tests {
         let msisdns: Vec<Msisdn> =
             vec![Msisdn::new(123475).unwrap(), Msisdn::new(12345677).unwrap()];
         let url_params = QuerySend::builder()
+            .origin(AlphaNumeric::from_str("inbox").unwrap().into())
             .payload(
                 PayloadType::Sms,
                 Payload::Text("fun".to_string()),
@@ -137,6 +138,6 @@ mod tests {
         println!("send obj {:?}", url_params);
         let url_params_str = serde_url_params::to_string(&url_params).unwrap();
         println!("send params are \"{}\"", url_params_str);
-        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages?originator=inbox&body=fun&recipient=123475&recipient=12345677&type=sms&datacoding=auto".to_string());
+        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages?originator=inbox&body=fun&recipients=123475&recipients=12345677&type=sms&datacoding=auto".to_string());
     }
 }

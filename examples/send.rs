@@ -21,8 +21,8 @@ fn main() -> Result<(), MessageBirdError> {
             Payload::Text("fun".to_string()),
             PayloadEncoding::Auto,
         )
-        .origin(AlphaNumeric("iamthesource".to_string()).into())
-        .add_recipient(Msisdn::new(123456789).unwrap().into())
+        .origin(AlphaNumeric("inbox".to_string()).into())
+        .add_recipient(Msisdn::new(491637734321).unwrap().into())
         //.add_recipient(Recipient::new())
         .build();
 
