@@ -18,8 +18,8 @@ fn main() -> Result<(), MessageBirdError> {
     let q = sms::list::QueryList::builder()
         .with_payload_type(PayloadType::from_str("").unwrap())
         .with_direction(Direction::from_str("").unwrap())
-        .with_origin(Originator::from_str("491637734321").unwrap())
-        .with_destination(Msisdn::new(491637734321).unwrap())
+        .with_origin(Originator::from_str("farfaraway").unwrap())
+        .with_destination(Msisdn::new(308403450).unwrap())
         //.with_contact()
         .contains_term("fun").skip(5).count(10).build();
 

@@ -22,7 +22,7 @@ fn main() -> Result<(), MessageBirdError> {
             PayloadEncoding::Auto,
         )
         .origin(AlphaNumeric("inbox".to_string()).into())
-        .add_recipient(Msisdn::new(491637734321).unwrap().into())
+        .add_recipient(Msisdn::new(308403450).unwrap().into())
         //.add_recipient(Recipient::new())
         .build();
 

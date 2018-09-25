@@ -15,13 +15,14 @@ Currently the planned features only include to send SMS and query SMS stati.
 
  - [x] serde impl for all relevant datatypes
  - [x] roundtrip decode encode tests
- - [x] use [`crate eserde_plain`](https://docs.rs/serde_plain/0.3.0/serde_plain/) for `trait ToString` and `trait FromStr` for objects which are used in filters
- - [ ] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
- - [ ] send SMS example
- - [ ] future for querying SMS
- - [ ] useful examples using [tokio](https://tokio.rs) as executor
+ - [x] use [`crate serde_plain`](https://docs.rs/serde_plain/0.3.0/serde_plain/) for `trait ToString` and `trait FromStr` for objects which are used in query filters and payload www urlencode
+ - [x] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
+ - [x] send SMS example using [tokio](https://tokio.rs) as executor
+ - [ ] future for listing SMS
+ - [ ] listing SMS examples using [tokio](https://tokio.rs) as executor
+ - [ ] write proper documentation
  - [ ] future for callback on SMS reception
-
+ - [ ] callback example using [tokio](https://tokio.rs) as executor
 
 ## MessageBird APIs
 
