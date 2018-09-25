@@ -4,6 +4,7 @@ use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
 use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
+use std::string::ToString;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Identifier(String);
@@ -20,6 +21,12 @@ impl Identifier {
     }
     pub fn as_str(&self) -> &str {
         self.0.as_str()
+    }
+}
+
+impl fmt::Display for Identifier {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

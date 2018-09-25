@@ -9,7 +9,7 @@ pub struct QuerySend {
     #[serde(rename = "body")]
     payload: Payload,
     // TODO this can actually be a mixture of Msisdns and group ids
-    #[serde(rename = "recipients")]
+    #[serde(rename = "recipient")]
     recipients: Vec<QueryRecipient>,
     // optionals, which should just not be there compared to : null
     #[serde(rename = "type")]
@@ -41,7 +41,7 @@ pub struct QuerySend {
 impl Default for QuerySend {
     fn default() -> Self {
         Self {
-            payload_type: Some(PayloadType::Sms),
+            payload_type: None,
             originator: Originator::default(),
             payload: Payload::Text("This is a default message".to_string()),
             reference: None,
@@ -49,8 +49,8 @@ impl Default for QuerySend {
             validity: None,
             gateway: None,
             details: vec![],
-            payload_encoding: Some(PayloadEncoding::Auto),
-            class: Some(MessageClass::Class0),
+            payload_encoding: None,
+            class: None,
             scheduled_datetime: None,
             recipients: vec![],
         }
@@ -63,14 +63,26 @@ impl QuerySend {
     }
 }
 
+use std::fmt;
+use std::string::String;
+
+impl fmt::Display for QuerySend {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let base = String::from("https://rest.messagebird.com/messages");
+        let query = serde_url_params::to_string(self).unwrap();
+        write!(f, "{}?{}", base, query)
+    }
+}
+
 impl Query for QuerySend {
     fn as_uri(&self) -> hyper::Uri {
-        let mut base = String::from("https://rest.messagebird.com/messages");
-        let query = serde_url_params::to_string(self).unwrap();
-        base.push_str("?");
-        base.push_str(query.as_str());
-        let uri: hyper::Uri = base.parse().unwrap();
+        let uri: hyper::Uri = self.to_string()
+            .parse()
+            .expect("Failed to parse send query object to hyper::Uri");
         uri
+    }
+    fn method(&self) -> hyper::Method {
+        hyper::Method::POST
     }
 }
 
@@ -125,5 +137,6 @@ mod tests {
         println!("send obj {:?}", url_params);
         let url_params_str = serde_url_params::to_string(&url_params).unwrap();
         println!("send params are \"{}\"", url_params_str);
+        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages?originator=inbox&body=fun&recipient=123475&recipient=12345677&type=sms&datacoding=auto".to_string());
     }
 }

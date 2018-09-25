@@ -16,6 +16,7 @@ pub struct QueryList {
     limit: Option<usize>,
     #[serde(flatten)]
     offset: Option<usize>,
+    #[serde(rename = "searchterm")]
     searchterms: Vec<String>,
     // #[serde(flatten)]
     #[serde(rename = "type")]
@@ -53,17 +54,15 @@ use std::string::String;
 
 impl fmt::Display for QueryList {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "xxx yyyy xxxxx")
+        let base = String::from("https://rest.messagebird.com/messages");
+        let query = serde_url_params::to_string(self).unwrap();
+        write!(f, "{}?{}", base, query)
     }
 }
 
 impl Query for QueryList {
     fn as_uri(&self) -> hyper::Uri {
-        let mut base = String::from("https://rest.messagebird.com/messages");
-        let query = serde_url_params::to_string(self).unwrap();
-        base.push_str("?");
-        base.push_str(query.as_str());
-        let uri: hyper::Uri = base
+        let uri: hyper::Uri = self.to_string()
             .parse()
             .expect("Failed to parse list query object to hyper::Uri");
         uri
@@ -175,5 +174,6 @@ mod tests {
 
         let url_params_str = serde_url_params::to_string(&url_params).unwrap();
         println!("list params are \"{}\"", url_params_str);
+        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages?recipient=123475&searchterm=fun".to_string());
     }
 }

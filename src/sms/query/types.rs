@@ -4,9 +4,13 @@ use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
 use std::string::ToString;
+use hyper;
 
 pub trait Query {
     fn as_uri(&self) -> hyper::Uri;
+    fn method(&self) -> hyper::Method {
+        hyper::Method::GET
+    }
 }
 
 // TODO
@@ -117,6 +121,7 @@ mod tests {
         let recipient_str = serde_url_params::to_string(&recipient).unwrap();
         println!("recipient is {}", recipient_str);
     }
+
     #[test]
     fn recipient_vec() {
         let recipients: Vec<QueryRecipient> = vec![

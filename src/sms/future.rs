@@ -120,7 +120,7 @@ where
 
         let mut request = hyper::Request::builder();
         request.uri(query.as_uri());
-        request.method(hyper::Method::POST); // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+        request.method(query.method());
         request.header("Authorization", format!("AccessKey {}", accesskey));
         let request: hyper::Request<_> = request.body(hyper::Body::empty()).unwrap();
 
