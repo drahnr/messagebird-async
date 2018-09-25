@@ -6,17 +6,16 @@ extern crate futures;
 extern crate messagebird_async;
 extern crate tokio_core;
 
-use chrono::prelude::*;
 use futures::future::Future;
 use messagebird_async::errors::*;
 use messagebird_async::sms;
 use messagebird_async::sms::*;
-use std::env;
 
 fn main() -> Result<(), MessageBirdError> {
     env_logger::init();
 
-    let sendable = SendableMessage::builder()
+    info!("example: sending a message");
+    let sendable = sms::send::QuerySend::builder()
         .payload(
             PayloadType::Sms,
             Payload::Text("fun".to_string()),

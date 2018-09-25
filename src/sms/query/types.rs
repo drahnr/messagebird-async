@@ -1,10 +1,8 @@
 use super::*;
 
-use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
 use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
-
 use std::string::ToString;
 
 pub trait Query {
@@ -21,6 +19,12 @@ impl Default for Contact {
     }
 }
 
+impl fmt::Display for Contact {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Contact({})", self.0)
+    }
+}
+
 // TODO
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Group;
@@ -30,9 +34,10 @@ impl Default for Group {
         Group
     }
 }
-impl ToString for Group {
-    fn to_string(&self) -> String {
-        "no group".to_string()
+
+impl fmt::Display for Group {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "no group")
     }
 }
 
@@ -87,5 +92,61 @@ impl Serialize for QueryRecipient {
     {
         let val_str = self.to_string();
         serializer.serialize_str(val_str.as_str())
+    }
+}
+
+// only need one way for this one, ambiguity for recipients makes impl
+// deserialize impossible without knowing all the existing group ids
+// which would imply implementing the group id API
+//
+#[cfg(test)]
+mod tests {
+
+    #[derive(Debug, Serialize, Eq, PartialEq)]
+    struct DummyQuery<T> {
+        pub inner: T,
+    }
+
+    use super::*;
+    #[test]
+    fn recipient() {
+        let recipient: QueryRecipient = Msisdn::new(123475).unwrap().into();
+
+        let recipient = DummyQuery { inner: recipient };
+
+        let recipient_str = serde_url_params::to_string(&recipient).unwrap();
+        println!("recipient is {}", recipient_str);
+    }
+    #[test]
+    fn recipient_vec() {
+        let recipients: Vec<QueryRecipient> = vec![
+            Msisdn::new(123475).unwrap().into(),
+            Msisdn::new(777777777).unwrap().into(),
+        ];
+
+        let recipients = DummyQuery { inner: recipients };
+
+        let recipients_str = serde_url_params::to_string(&recipients).unwrap();
+        println!("recipients are \"{}\"", recipients_str);
+    }
+
+    #[test]
+    fn recipient_optional_some() {
+        let recipients: Option<QueryRecipient> = Some(Msisdn::new(123475).unwrap().into());
+
+        let recipients = DummyQuery { inner: recipients };
+
+        let recipients_str = serde_url_params::to_string(&recipients).unwrap();
+        println!("recipient is Some(...) => \"{}\"", recipients_str);
+    }
+
+    #[test]
+    fn recipient_optional_none() {
+        let recipients: Option<QueryRecipient> = None;
+
+        let recipients = DummyQuery { inner: recipients };
+
+        let recipients_str = serde_url_params::to_string(&recipients).unwrap();
+        println!("recipient is None => \"{}\"", recipients_str);
     }
 }

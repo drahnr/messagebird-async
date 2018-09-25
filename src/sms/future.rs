@@ -104,8 +104,8 @@ where
                 // try to parse as json with serde_json
                 let obj = serde_json::from_slice::<T>(&body).map_err(|_e| MessageBirdError::ParseError)?;
                 Ok(obj)
-            })  
-            .map_err(|_e| MessageBirdError::ParseError);
+            })
+                        .map_err(|_e| MessageBirdError::ParseError);
     fut
 }
 
@@ -120,7 +120,7 @@ where
 
         let mut request = hyper::Request::builder();
         request.uri(query.as_uri());
-        request.method(hyper::Method::POST);
+        request.method(hyper::Method::POST); // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
         request.header("Authorization", format!("AccessKey {}", accesskey));
         let request: hyper::Request<_> = request.body(hyper::Body::empty()).unwrap();
 

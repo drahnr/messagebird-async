@@ -5,18 +5,28 @@ use super::*;
 
 use hyper;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct QueryList {
+    // #[serde(flatten)]
     originator: Option<Originator>,
     recipient: Option<QueryRecipient>,
+    // #[serde(flatten)]
     direction: Option<Direction>,
+    #[serde(flatten)]
     limit: Option<usize>,
+    #[serde(flatten)]
     offset: Option<usize>,
     searchterms: Vec<String>,
+    // #[serde(flatten)]
+    #[serde(rename = "type")]
     payload_type: Option<PayloadType>,
+    // #[serde(flatten)]
     contact_id: Option<Contact>,
+    // #[serde(flatten)]
     status: Option<Status>,
+    #[serde(flatten)]
     start: Option<DateTime>,
+    #[serde(flatten)]
     end: Option<DateTime>,
 }
 
@@ -49,7 +59,20 @@ impl fmt::Display for QueryList {
 
 impl Query for QueryList {
     fn as_uri(&self) -> hyper::Uri {
-        unimplemented!()
+        let mut base = String::from("https://rest.messagebird.com/messages");
+        let query = serde_url_params::to_string(self).unwrap();
+        base.push_str("?");
+        base.push_str(query.as_str());
+        let uri: hyper::Uri = base
+            .parse()
+            .expect("Failed to parse list query object to hyper::Uri");
+        uri
+    }
+}
+
+impl QueryList {
+    pub fn builder() -> Builder {
+        Builder::default()
     }
 }
 
@@ -62,7 +85,7 @@ impl Default for Builder {
 }
 
 impl Builder {
-    pub fn originating_from(mut self, originator: Originator) -> Self {
+    pub fn with_origin(mut self, originator: Originator) -> Self {
         self.0.originator = Some(originator);
         self
     }
@@ -82,7 +105,7 @@ impl Builder {
         self
     }
 
-    pub fn sent_to<T>(mut self, msisdn: T) -> Self
+    pub fn with_destination<T>(mut self, msisdn: T) -> Self
     where
         T: Into<QueryRecipient>,
     {
@@ -123,14 +146,34 @@ impl Builder {
     // abstraction over that in place
 
     pub fn build(self) -> QueryList {
-        let mut base = String::from("https://rest.messagebird.com/messages");
         self.0
     }
 }
 
-impl QueryList {
-    pub fn builder(self) -> Builder {
-        let mut base = String::from("https://rest.messagebird.com/messages");
-        Builder::default()
+// only need one way for this one, ambiguity for recipients makes impl
+// deserialize impossible without knowing all the existing group ids
+// which would imply implementing the group id API
+//
+#[cfg(test)]
+mod tests {
+
+    #[derive(Debug, Serialize, Eq, PartialEq)]
+    struct Frame<T> {
+        pub inner: T,
+    }
+
+    use super::*;
+    #[test]
+    fn query_list() {
+        let msisdns: Vec<Msisdn> =
+            vec![Msisdn::new(123475).unwrap(), Msisdn::new(12345677).unwrap()];
+        let url_params = QueryList::builder()
+            .contains_term("fun")
+            .with_destination(msisdns[0])
+            .build();
+        println!("list obj {:?}", url_params);
+
+        let url_params_str = serde_url_params::to_string(&url_params).unwrap();
+        println!("list params are \"{}\"", url_params_str);
     }
 }
