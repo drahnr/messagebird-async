@@ -6,7 +6,7 @@ use hyper;
 use std::fmt;
 use std::string::ToString;
 
-/// TODO the name is misleading/obsolete, should be something with params 
+/// TODO the name is misleading/obsolete, should be something with params
 pub trait Query {
     fn uri(&self) -> hyper::Uri;
     fn method(&self) -> hyper::Method {

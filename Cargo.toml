@@ -8,6 +8,8 @@ repository = "https://github.com/drahnr/messagebird-async"
 keywords = ["messagebird", "sms"]
 categories = ["asynchronous", "api-bindings"]
 readme = "README.md"
+#codecov = { repository = "drahnr/messagebird-async", branch = "master", service = "github" }
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 hyper = "0.12"

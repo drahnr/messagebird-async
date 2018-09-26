@@ -106,8 +106,10 @@ where
             .and_then(|body| {
                 debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
                 // try to parse as json with serde_json
-                let obj = serde_json::from_slice::<R>(&body).map_err(|_e| MessageBirdError::ParseError)?;
-                Ok(obj)
+                match serde_json::from_slice::<R>(&body).map_err(|_e| MessageBirdError::ParseError) {
+                    Err(e) => futures::future::err(e),
+                    Ok(x) => futures::future::ok(x),
+                }
             });
     fut
 }

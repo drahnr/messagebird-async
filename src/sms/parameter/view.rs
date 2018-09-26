@@ -51,6 +51,9 @@ mod tests {
         println!("view obj {:?}", url_params);
         let url_params_str = serde_url_params::to_string(&url_params).unwrap();
         println!("view params are \"{}\"", url_params_str);
-        assert_eq!(url_params.to_string(), "https://rest.messagebird.com/messages/someid".to_string());
+        assert_eq!(
+            url_params.to_string(),
+            "https://rest.messagebird.com/messages/someid".to_string()
+        );
     }
 }
