@@ -52,9 +52,9 @@ impl AccessKey {
     }
 }
 
-pub type RequestMessages = Request<query::list::QueryList, Vec<Message>>;
-pub type RequestView = Request<query::view::QueryView, Message>;
-pub type RequestSend = Request<query::send::QuerySend, Message>;
+pub type RequestMessages = Request<parameter::list::ListParameters, Vec<Message>>;
+pub type RequestView = Request<parameter::view::ViewParameters, Message>;
+pub type RequestSend = Request<parameter::send::SendParameters, Message>;
 
 pub struct Request<T, R> {
     future: Box<Future<Item = R, Error = MessageBirdError>>,
@@ -69,15 +69,15 @@ impl<T, R> Future for Request<T, R> {
     }
 }
 
-fn request_future_with_json_response<T>(
+fn request_future_with_json_response<R>(
     client: &mut hyper::Client<
         hyper_rustls::HttpsConnector<hyper::client::HttpConnector>,
         hyper::Body,
     >,
     request: hyper::Request<hyper::Body>,
-) -> impl Future<Item = T, Error = MessageBirdError>
+) -> impl Future<Item = R, Error = MessageBirdError>
 where
-    T: 'static + Sized + Send + Sync + for<'de> serde::de::Deserialize<'de>,
+    R: 'static + Sized + Send + Sync + for<'de> serde::de::Deserialize<'de>,
 {
     debug!("request {:?}", request);
     let fut = client
@@ -106,36 +106,36 @@ where
             .and_then(|body| {
                 debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
                 // try to parse as json with serde_json
-                let obj = serde_json::from_slice::<T>(&body).map_err(|_e| MessageBirdError::ParseError)?;
+                let obj = serde_json::from_slice::<R>(&body).map_err(|_e| MessageBirdError::ParseError)?;
                 Ok(obj)
             });
     fut
 }
 
-impl<Q, R> Request<Q, R>
+impl<P, R> Request<P, R>
 where
-    Q: Send + Query,
+    P: Send + Query,
     R: 'static + Send + Sync + for<'de> serde::de::Deserialize<'de>,
 {
-    pub fn new(query: &Q, accesskey: &AccessKey) -> Self {
+    pub fn new(parameters: &P, accesskey: &AccessKey) -> Self {
         let https = hyper_rustls::HttpsConnector::new(4);
         let mut client: hyper::Client<_, hyper::Body> = hyper::Client::builder().build(https);
 
         let mut request = hyper::Request::builder();
-        request.uri(query.uri());
-        request.method(query.method());
+        request.uri(parameters.uri());
+        request.method(parameters.method());
         request.header(
             hyper::header::AUTHORIZATION,
             format!("AccessKey {}", accesskey),
         );
 
         // XXX refactor needed - badly needed
-        let request: hyper::Request<_> = if query.method() == hyper::Method::POST {
+        let request: hyper::Request<_> = if parameters.method() == hyper::Method::POST {
             request.header(
                 hyper::header::CONTENT_TYPE,
                 format!("application/x-www-form-urlencoded"),
             );
-            if let Some(body) = query.uri().query() {
+            if let Some(body) = parameters.uri().query() {
                 let body = body.to_string();
                 request.header(hyper::header::CONTENT_LENGTH, format!("{}", body.len()));
                 request.body(body.into()).unwrap()

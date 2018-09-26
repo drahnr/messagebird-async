@@ -1,8 +1,8 @@
 use super::*;
 
-/// QuerySend is an object that can be passed on to MessageBird API to trigger sending a SMS
+/// SendParameters is an object that can be passed on to MessageBird API to trigger sending a SMS
 #[derive(Debug, Serialize, Eq, PartialEq)]
-pub struct QuerySend {
+pub struct SendParameters {
     // mandatory
     #[serde(rename = "originator")]
     originator: Originator,
@@ -38,7 +38,7 @@ pub struct QuerySend {
     // creation date is inferred by API usage
 }
 
-impl Default for QuerySend {
+impl Default for SendParameters {
     fn default() -> Self {
         Self {
             payload_type: None,
@@ -57,16 +57,16 @@ impl Default for QuerySend {
     }
 }
 
-impl QuerySend {
+impl SendParameters {
     pub fn builder() -> Builder {
-        Builder(QuerySend::default())
+        Builder(SendParameters::default())
     }
 }
 
 use std::fmt;
 use std::string::String;
 
-impl fmt::Display for QuerySend {
+impl fmt::Display for SendParameters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let base = String::from("https://rest.messagebird.com/messages");
         let query = serde_url_params::to_string(self).unwrap();
@@ -74,7 +74,7 @@ impl fmt::Display for QuerySend {
     }
 }
 
-impl Query for QuerySend {
+impl Query for SendParameters {
     fn uri(&self) -> hyper::Uri {
         let uri: hyper::Uri = self
             .to_string()
@@ -87,7 +87,7 @@ impl Query for QuerySend {
     }
 }
 
-pub struct Builder(QuerySend);
+pub struct Builder(SendParameters);
 
 impl Builder {
     pub fn payload(
@@ -113,7 +113,7 @@ impl Builder {
         self.0.recipients.push(recipient);
         self
     }
-    pub fn build(self) -> QuerySend {
+    pub fn build(self) -> SendParameters {
         self.0
     }
 }
@@ -126,7 +126,7 @@ mod tests {
     fn query_send() {
         let msisdns: Vec<Msisdn> =
             vec![Msisdn::new(123475).unwrap(), Msisdn::new(12345677).unwrap()];
-        let url_params = QuerySend::builder()
+        let url_params = SendParameters::builder()
             .origin(AlphaNumeric::from_str("inbox").unwrap().into())
             .payload(
                 PayloadType::Sms,

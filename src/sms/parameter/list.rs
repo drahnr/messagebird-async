@@ -6,7 +6,7 @@ use super::*;
 use hyper;
 
 #[derive(Debug, Serialize)]
-pub struct QueryList {
+pub struct ListParameters {
     // #[serde(flatten)]
     originator: Option<Originator>,
     recipient: Option<QueryRecipient>,
@@ -31,9 +31,9 @@ pub struct QueryList {
     end: Option<DateTime>,
 }
 
-impl Default for QueryList {
+impl Default for ListParameters {
     fn default() -> Self {
-        QueryList {
+        ListParameters {
             originator: None,
             recipient: None,
             direction: None,
@@ -52,7 +52,7 @@ impl Default for QueryList {
 use std::fmt;
 use std::string::String;
 
-impl fmt::Display for QueryList {
+impl fmt::Display for ListParameters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let base = String::from("https://rest.messagebird.com/messages");
         let query = serde_url_params::to_string(self).unwrap();
@@ -60,7 +60,7 @@ impl fmt::Display for QueryList {
     }
 }
 
-impl Query for QueryList {
+impl Query for ListParameters {
     fn uri(&self) -> hyper::Uri {
         let uri: hyper::Uri = self
             .to_string()
@@ -70,17 +70,17 @@ impl Query for QueryList {
     }
 }
 
-impl QueryList {
+impl ListParameters {
     pub fn builder() -> Builder {
         Builder::default()
     }
 }
 
-pub struct Builder(QueryList);
+pub struct Builder(ListParameters);
 
 impl Default for Builder {
     fn default() -> Self {
-        Builder(QueryList::default())
+        Builder(ListParameters::default())
     }
 }
 
@@ -145,7 +145,7 @@ impl Builder {
     // TODO contact_id is missing, but that'd require having some kind of
     // abstraction over that in place
 
-    pub fn build(self) -> QueryList {
+    pub fn build(self) -> ListParameters {
         self.0
     }
 }
@@ -167,7 +167,7 @@ mod tests {
     fn query_list() {
         let msisdns: Vec<Msisdn> =
             vec![Msisdn::new(123475).unwrap(), Msisdn::new(12345677).unwrap()];
-        let url_params = QueryList::builder()
+        let url_params = ListParameters::builder()
             .contains_term("fun")
             .with_destination(msisdns[0])
             .build();

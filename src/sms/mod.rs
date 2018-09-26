@@ -42,5 +42,5 @@ pub use self::future::*;
 mod typedetails;
 pub use self::typedetails::*;
 
-mod query;
-pub use self::query::*;
+mod parameter;
+pub use self::parameter::*;

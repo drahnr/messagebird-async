@@ -15,7 +15,7 @@ fn main() -> Result<(), MessageBirdError> {
     env_logger::init();
 
     info!("example: sending a message");
-    let sendable = sms::send::QuerySend::builder()
+    let sendable = sms::send::SendParameters::builder()
         .payload(
             PayloadType::Sms,
             Payload::Text("fun".to_string()),

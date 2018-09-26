@@ -15,7 +15,7 @@ fn main() -> Result<(), MessageBirdError> {
     env_logger::init();
 
     info!("example: listing all remote messages");
-    let q = sms::list::QueryList::builder()
+    let q = sms::list::ListParameters::builder()
         .with_payload_type(PayloadType::from_str("").unwrap())
         .with_direction(Direction::from_str("").unwrap())
         .with_origin(Originator::from_str("farfaraway").unwrap())
