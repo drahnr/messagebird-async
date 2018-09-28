@@ -1,0 +1,177 @@
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+
+resources:
+- name: git-clone-resource
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/drahnr/messagebird-async.git
+
+- name: git-tag-resource
+  type: git
+  source:
+    tag_filter: "v[0-9]*"
+    branch: master
+    uri: https://github.com/drahnr/messagebird-async.git
+
+- name: git-pull-request-resource
+  type: pull-request
+  source:
+    repo: drahnr/messagebird-async
+    access_token: ((sirmergealot-github-token))
+
+
+- name: env-musl
+  type: docker-image
+  source:
+    repository: clux/muslrust
+    max_concurrent_downloads: 2
+    max_concurrent_uploads: 2
+
+- name: env-glibc
+  type: docker-image
+  source:
+    repository: rust
+    max_concurrent_downloads: 2
+    max_concurrent_uploads: 2
+
+#- name: gh-release
+#  type: github-release
+#  source:
+#    owner: drahnr
+#    repository: messagebird-async
+#    access_token: ((drahnr-github-token))
+
+jobs:
+  - name: pr-validate
+    build_logs_to_retain: 10
+    public: true
+    plan:
+    - aggregate:
+      - get: env-glibc
+        trigger: true
+      - get: env-musl
+        trigger: true
+      - get: git-pull-request-resource
+        trigger: true
+
+    - aggregate:
+      - task: validate-glibc
+        timeout: 15m
+        image: env-glibc
+        config:
+          platform: linux
+          inputs:
+          - name: git-clone-resource
+          run:
+            path: sh
+            args:
+            - -exc
+            - |
+              cargo b
+              cargo t
+            dir: git-clone-resource
+
+      - task: validate-musl
+        timeout: 15m
+        image: env-musl
+        config:
+          platform: linux
+          inputs:
+          - name: git-clone-resource
+          run:
+            path: sh
+            args:
+            - -exc
+            - |
+              cargo b
+              cargo t
+            dir: git-clone-resource
+
+      on_success:
+        put: git-pull-request-resource
+        params:
+          path: git-pull-request-resource
+          status: success
+
+      on_failure:
+        put: git-pull-request-resource
+        params:
+          path: git-pull-request-resource
+          status: failure
+
+  - name: master-validate
+    build_logs_to_retain: 10
+    public: true
+    plan:
+    - aggregate:
+      - get: env-musl
+        trigger: true
+      - get: env-glibc
+        trigger: true
+      - get: git-clone-resource
+        trigger: true
+
+    - aggregate:
+      - task: validate-glibc
+        timeout: 15m
+        image: env-glibc
+        config:
+          platform: linux
+          inputs:
+          - name: git-clone-resource
+          run:
+            path: sh
+            args:
+            - -exc
+            - |
+              cargo b
+              cargo t
+            dir: git-clone-resource
+
+      - task: validate-musl
+        timeout: 15m
+        image: env-musl
+        config:
+          platform: linux
+          inputs:
+          - name: git-clone-resource
+          run:
+            path: sh
+            args:
+            - -exc
+            - |
+              cargo b
+              cargo t
+            dir: git-clone-resource
+
+  - name: publish-release
+    build_logs_to_retain: 5
+    public: true
+    plan:
+    - aggregate:
+      - get: env-glibc
+        trigger: true
+      - get: git-tag-resource
+        trigger: true
+
+    - task: crates-io
+      timeout: 15m
+      image: env-glibc
+      config:
+        platform: linux
+        inputs:
+        - name: git-tag-resource
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              cargo login ((crates-io-token))
+              cargo publish
+
+          dir: git-tag-resource

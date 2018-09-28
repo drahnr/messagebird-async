@@ -1,12 +1,14 @@
 # messagebird-async
 
+[![Build Status](https://ci.spearow.io/api/v1/teams/main/pipelines/messagebird/jobs/master-validate/badge)](https://ci.spearow.io/teams/main/pipelines/messagebird) [![Crates.io](https://img.shields.io/crates/v/messagebird-async.svg)](https://crates.io/crates/messagebird-async) [![docs.rs](https://docs.rs/messagebird-async/badge.svg)](https://docs.rs/messagebird-async) [![License](https://img.shields.io/crates/l/messagebird-async.svg)](#license)
+
 MessageBird is a service for sending SMS at its core https://www.messagebird.com/
 
 ## Example
 
 ### Send a SMS Message
-Sending a sms to a specified target is implemented in `examples/send.rs`:
 
+Sending a sms to a specified target is implemented in `examples/send.rs`:
 
 ```sh
 export MESSAGEBIRD_ACCESSKEY=abio8usad..dfahdk
@@ -72,25 +74,25 @@ Currently the planned features only include to send SMS and query SMS stati.
 
 ## RoadMap
 
- - [x] serde impl for all relevant datatypes
- - [x] roundtrip decode encode tests
- - [x] use [`crate serde_plain`](https://docs.rs/serde_plain/0.3.0/serde_plain/) for `trait ToString` and `trait FromStr` for objects which are used in query filters and payload www urlencode
- - [x] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
- - [x] send SMS example using [tokio](https://tokio.rs) as executor
- - [ ] future for listing SMS
- - [ ] listing SMS examples using [tokio](https://tokio.rs) as executor
- - [ ] write proper documentation
- - [ ] future for callback on SMS reception
- - [ ] callback example using [tokio](https://tokio.rs) as executor
+- [x] serde impl for all relevant datatypes
+- [x] roundtrip decode encode tests
+- [x] use [`crate serde_plain`](https://docs.rs/serde_plain/0.3.0/serde_plain/) for `trait ToString` and `trait FromStr` for objects which are used in query filters and payload www urlencode
+- [x] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
+- [x] send SMS example using [tokio](https://tokio.rs) as executor
+- [ ] future for listing SMS
+- [ ] listing SMS examples using [tokio](https://tokio.rs) as executor
+- [ ] write proper documentation
+- [ ] future for callback on SMS reception
+- [ ] callback example using [tokio](https://tokio.rs) as executor
 
 ## MessageBird APIs
 
- - [ ] [`SMS`](https://rest.messagebird.com/messages) (WIP)
- - [ ] [`Contacts`](https://rest.messagebird.com/contacts) (low prio)
- - [ ] [`MMS`](https://rest.messagebird.com/mms) (*)
- - [ ] [`Conversation`](https://developers.messagebird.com/docs/conversations) (*)
- - [ ] [`VoiceMessaging`](https://developers.messagebird.com/docs/voice-messaging) (*)
- - [ ] [`VoiceCalling`](https://developers.messagebird.com/docs/voice) (*)
+- [ ] [`SMS`](https://rest.messagebird.com/messages) (WIP)
+- [ ] [`Contacts`](https://rest.messagebird.com/contacts) (low prio)
+- [ ] [`MMS`](https://rest.messagebird.com/mms) (*)
+- [ ] [`Conversation`](https://developers.messagebird.com/docs/conversations) (*)
+- [ ] [`VoiceMessaging`](https://developers.messagebird.com/docs/voice-messaging) (*)
+- [ ] [`VoiceCalling`](https://developers.messagebird.com/docs/voice) (*)
 
 \* = not planned, unless external contributors step up
 
