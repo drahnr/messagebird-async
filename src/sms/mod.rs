@@ -24,6 +24,9 @@ pub use self::messageclass::*;
 mod message;
 pub use self::message::*;
 
+mod messagelist;
+pub use self::messagelist::*;
+
 mod originator;
 pub use self::originator::*;
 

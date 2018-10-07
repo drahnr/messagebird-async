@@ -52,7 +52,7 @@ impl AccessKey {
     }
 }
 
-pub type RequestMessages = Request<parameter::list::ListParameters, Vec<Message>>;
+pub type RequestMessageList = Request<parameter::list::ListParameters, MessageList>;
 pub type RequestView = Request<parameter::view::ViewParameters, Message>;
 pub type RequestSend = Request<parameter::send::SendParameters, Message>;
 
@@ -77,7 +77,7 @@ fn request_future_with_json_response<R>(
     request: hyper::Request<hyper::Body>,
 ) -> impl Future<Item = R, Error = MessageBirdError>
 where
-    R: 'static + Sized + Send + Sync + for<'de> serde::de::Deserialize<'de>,
+    R: 'static + Sized + Send + Sync + for<'de> serde::de::Deserialize<'de> + std::fmt::Debug,
 {
     debug!("request {:?}", request);
     let fut = client
@@ -106,9 +106,14 @@ where
             .and_then(|body| {
                 debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
                 // try to parse as json with serde_json
-                match serde_json::from_slice::<R>(&body).map_err(|_e| MessageBirdError::ParseError) {
+                match serde_json::from_slice::<R>(&body).map_err(|e| {
+                    debug!("Parsing Error Detail: {:?}", e);
+                    MessageBirdError::ParseError}) {
                     Err(e) => futures::future::err(e),
-                    Ok(x) => futures::future::ok(x),
+                    Ok(x) => {
+                        debug!("Parsed response {:?}", x);
+                        futures::future::ok(x)
+                    },
                 }
             });
     fut
@@ -117,7 +122,7 @@ where
 impl<P, R> Request<P, R>
 where
     P: Send + Query,
-    R: 'static + Send + Sync + for<'de> serde::de::Deserialize<'de>,
+    R: 'static + Send + Sync + for<'de> serde::de::Deserialize<'de> + std::fmt::Debug,
 {
     pub fn new(parameters: &P, accesskey: &AccessKey) -> Self {
         let https = hyper_rustls::HttpsConnector::new(4);
@@ -130,6 +135,7 @@ where
             hyper::header::AUTHORIZATION,
             format!("AccessKey {}", accesskey),
         );
+        debug!("{:?}", request);
 
         // XXX refactor needed - badly needed
         let request: hyper::Request<_> = if parameters.method() == hyper::Method::POST {

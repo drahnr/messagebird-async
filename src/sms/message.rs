@@ -75,7 +75,7 @@ pub struct Message {
     direction: Direction,
     #[serde(rename = "type")]
     payload_type: PayloadType,
-    originator: Originator,
+    originator: Option<Originator>,
     #[serde(rename = "body")]
     payload: Payload,
     reference: Option<String>,

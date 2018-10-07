@@ -20,16 +20,19 @@ fn main() -> Result<(), MessageBirdError> {
 
     info!("example: listing all remote messages");
     let q = sms::list::ListParameters::builder()
-        .with_payload_type(PayloadType::from_str("").unwrap())
-        .with_direction(Direction::from_str("").unwrap())
-        .with_origin(Originator::from_str("farfaraway").unwrap())
+        //.with_payload_type(PayloadType::Sms) // curently the API has a bug which returns unexpected/undocumented JSON, so stay away from this for the time being
+        .with_direction(Direction::SendToMobile)
+        //.with_origin(Originator::from_str("inbox")?) // inbox is the default set by messagebird
         .with_destination(msisdn)
-        //.with_contact()
-        .contains_term("fun").skip(5).count(10).build();
+        //.with_contact() // unimplemented for the time being!
+        //.contains_term("fun")
+        //.skip(5)
+        //.count(10)
+        .build();
 
     let accesskey = AccessKey::from_env()?;
-    let fut = RequestMessages::new(&q, &accesskey); //.and_then();
-    let fut = fut.and_then(|msgs: Vec<Message>| {
+    let fut = RequestMessageList::new(&q, &accesskey);
+    let fut = fut.and_then(|msgs: MessageList | {
         info!("{:?}", msgs);
         futures::future::ok(())
     });
