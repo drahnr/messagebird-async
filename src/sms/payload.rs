@@ -105,7 +105,7 @@ impl<'de> Visitor<'de> for PayloadVisitor {
     type Value = Payload;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a valid date time formatted str")
+        formatter.write_str("a valid payload, either string or binary")
     }
 
     fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>

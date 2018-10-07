@@ -127,7 +127,7 @@ impl<'de> Visitor<'de> for OriginatorVisitor {
     type Value = Originator;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a valid date time formatted str")
+        formatter.write_str("a valid originator")
     }
 
     fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
