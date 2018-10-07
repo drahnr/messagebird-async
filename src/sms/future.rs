@@ -12,6 +12,9 @@ use std::env;
 use std::fmt;
 use std::marker::PhantomData;
 
+/// API Token Access
+///
+/// They can be managed under https://dashboard.messagebird.com/en/developers/access
 #[derive(Debug, Clone)]
 pub struct AccessKey(String);
 
@@ -52,10 +55,20 @@ impl AccessKey {
     }
 }
 
+/// Request object for a list of sent or in processing messages
 pub type RequestMessageList = Request<parameter::list::ListParameters, MessageList>;
+
+/// Request returning one individual message
 pub type RequestView = Request<parameter::view::ViewParameters, Message>;
+
+/// Request to send a message
 pub type RequestSend = Request<parameter::send::SendParameters, Message>;
 
+/// Generic API request object to messagebird REST API
+/// Handles authorization and parses returned json into structures
+///
+/// Should not be used!
+/// Use `RequestMessageList`,`RequestView`,`RequestSend` instead!
 pub struct Request<T, R> {
     future: Box<Future<Item = R, Error = MessageBirdError>>,
     phantom: PhantomData<T>,

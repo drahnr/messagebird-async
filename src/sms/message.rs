@@ -1,5 +1,8 @@
 use super::*;
 
+/// Determines if the direction of the message
+///
+/// Mostly useful for filtering messages with `ListParamters`/`RequestMessageList`
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename = "direction")]
 pub enum Direction {
@@ -34,6 +37,12 @@ impl ToString for Direction {
     }
 }
 
+/// Determines the Gateway ID
+///
+/// Not very useful right now, recommended to not use unless you have explicit issues
+/// i.e. some base stations in south eastern europe happily convert binary SMS to
+/// textual SMS - because why not? In that case alternate routes might help to circumpass
+/// the issues.
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Gateway(pub u32);
 
