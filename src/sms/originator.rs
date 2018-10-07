@@ -21,7 +21,7 @@ impl FromStr for TelephoneNumber {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[1-9][0-9]+$").unwrap();
+            static ref RE: Regex = Regex::new(r"^\+?[1-9][0-9]+$").unwrap();
         }
         if RE.is_match(s) {
             Ok(TelephoneNumber(String::from(s)))
