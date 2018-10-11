@@ -26,8 +26,8 @@ fn main() -> Result<(), MessageBirdError> {
         .with_destination(msisdn)
         //.with_contact() // unimplemented for the time being!
         //.contains_term("fun")
-        //.skip(5)
-        //.count(10)
+        .skip(1)
+        .count(10)
         .build();
 
     let accesskey = AccessKey::from_env()?;
@@ -35,6 +35,9 @@ fn main() -> Result<(), MessageBirdError> {
     let fut = fut.and_then(|msgs: MessageList | {
         info!("{:?}", msgs);
         futures::future::ok(())
+    }).map_err(|e| {
+        debug!("err: {:?}", e);
+        e
     });
     let mut core = tokio_core::reactor::Core::new().unwrap();
     core.run(fut.map(|_| ()))
