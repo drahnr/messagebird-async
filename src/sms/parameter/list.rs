@@ -9,15 +9,14 @@ use hyper;
 ///
 /// Filters the results of the query on the backend service side.
 #[derive(Debug, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ListParameters {
     // #[serde(flatten)]
     originator: Option<Originator>,
     recipient: Option<QueryRecipient>,
     // #[serde(flatten)]
     direction: Option<Direction>,
-    #[serde(flatten)]
     limit: Option<usize>,
-    #[serde(flatten)]
     offset: Option<usize>,
     #[serde(rename = "searchterm")]
     searchterms: Vec<String>,
