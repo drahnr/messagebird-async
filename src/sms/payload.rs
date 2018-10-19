@@ -5,6 +5,10 @@ use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
 
+/// SMS encoding enum
+///
+/// Defines how to interpret the message encoding for text messages.
+/// For binary SMS see `PayloadType`
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(rename = "encoding")]
@@ -14,11 +18,17 @@ pub enum PayloadEncoding {
     Auto,
 }
 
+/// SMS message type enum
+///
+/// Determines the type of the message payload
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum PayloadType {
+    /// regular text SMS, encoding defined by `PayloadEncoding`
     Sms,
+    /// raw binary encoding of bytes, some providers are incapable of handling those with their base stations, be warned
     Binary,
+    /// priority notification style SMS, there is no guarantee that this is stored on the phone
     Flash,
 }
 
@@ -45,6 +55,13 @@ impl PayloadType {
     }
 }
 
+/// Payload data
+///
+/// Enum representing both raw bytes/binary as well as text based sms messages.
+///
+/// Used for the sending direction.
+///
+/// `PayloadType` and `PayloadEncoding` are unrelated and used for querying.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Payload {
     Bytes(Vec<u8>),

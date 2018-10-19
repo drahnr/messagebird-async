@@ -6,6 +6,11 @@ use serde::ser::{Serialize, Serializer};
 use std::fmt;
 use std::string::ToString;
 
+/// Unique message identifier
+///
+/// Consists 32 alphanumeric characters (may change!)
+///
+/// Generate by the MessageBird backend on posting the message.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Identifier(String);
 

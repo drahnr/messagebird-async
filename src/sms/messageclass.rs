@@ -5,11 +5,18 @@ use std::fmt;
 
 use num::FromPrimitive;
 
+/// Message class
+///
+/// TODO clarify the difference to `MessageType`
 #[derive(Debug, Eq, PartialEq)]
 pub enum MessageClass {
+    /// displayed without being saved
     Class0 = 0,
+    /// stored on the SIM as memory is available, 99% this is what you want
     Class1 = 1,
+    /// message contains SIM card data, trigger response to the service center
     Class2 = 2,
+    /// ...
     Class3 = 3,
 }
 

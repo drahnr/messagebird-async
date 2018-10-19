@@ -40,15 +40,23 @@ impl ToString for Msisdn {
     }
 }
 
+/// Deliver Status of a SMS message
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
+    /// not defined by the spec (you should never see this)
     Unknown,
+    /// tracked in message birds system, but not delivered yet
     Scheduled,
+    /// Sent, but not on the device just yet
     Sent,
+    /// TODO
     Buffered,
+    /// Delivery completed
     Delivered,
+    /// SMS did not get delivered to the recipient, usually happens after 48 hours
     Expired,
+    /// TODO not sure about the difference to `Expired`
     DeliveryFailed,
 }
 
@@ -79,6 +87,11 @@ impl ToString for Status {
     }
 }
 
+/// Recipient
+///
+/// Definition of a recepient, used for querying the status of a SMS.
+/// Contains the deliver status of a message as well as the time of posting
+/// the SMS to the MessageBird API.
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub struct Recipient {

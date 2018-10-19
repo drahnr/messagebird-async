@@ -40,7 +40,7 @@ pub struct MessageList {
 mod test {
     use super::*;
 
-    static RAW_NONE:&str = r#"
+    static RAW_NONE: &str = r#"
 {
     "offset": 15,
     "limit": 99,
@@ -57,7 +57,7 @@ mod test {
 }
     "#;
 
-    static RAW_ONE:&str = r#"
+    static RAW_ONE: &str = r#"
 {
     "offset": 0,
     "limit": 20,
@@ -104,7 +104,7 @@ mod test {
 }
     "#;
 
-    static RAW_MULTI:&str = r#"
+    static RAW_MULTI: &str = r#"
 {
     "offset": 0,
     "limit": 20,

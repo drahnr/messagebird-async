@@ -59,6 +59,10 @@ impl FromStr for AlphaNumeric {
     }
 }
 
+/// Origin of a message
+///
+/// Defines the source of a message, which can either be an arbitrary
+/// alphanumeric string or a telephone number
 #[derive(Debug, Serialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(untagged)]

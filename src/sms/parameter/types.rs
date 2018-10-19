@@ -14,7 +14,9 @@ pub trait Query {
     }
 }
 
-// TODO
+/// Contact Id
+///
+/// TODO not implemented just yet
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Contact(u64);
 
@@ -30,7 +32,11 @@ impl fmt::Display for Contact {
     }
 }
 
-// TODO
+/// Group
+///
+/// Send a message to a predefined group of receivers
+///
+/// TODO not implemented just yet
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Group;
 

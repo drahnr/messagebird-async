@@ -5,6 +5,12 @@ use serde::ser::{Serialize, Serializer};
 
 use std::fmt;
 
+/// Notification Url
+///
+/// An Url to be called on certain events directly from the MessageBird infrastructure
+/// with some json.
+///
+/// TODO currently pretty useless, pending impl of a future
 #[derive(Debug, Eq, PartialEq)]
 pub struct CallbackUrl(Url);
 

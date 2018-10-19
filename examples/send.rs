@@ -14,9 +14,8 @@ fn main() -> Result<(), MessageBirdError> {
     env_logger::init();
 
     let msisdn_str = std::env::var("SMS_RECIPIENT".to_string())
-        .expect("SMS_RECIPIENT should contain the number without prefix");
-    let msisdn: Msisdn = Msisdn::from_str(msisdn_str.as_str())
-        .expect("SMS_RECIPIENT did not contain a valid number");
+        .expect("Missing SMS_RECIPIENT environment variable");
+    let msisdn: Msisdn = Msisdn::from_str(msisdn_str.as_str())?;
 
     info!("example: sending a message");
     let sendable = sms::send::SendParameters::builder()

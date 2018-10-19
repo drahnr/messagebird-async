@@ -5,8 +5,13 @@ use std::fmt;
 use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
+/// Type Details
+///
+/// Additional message details for the SMS message when passing and querying the MessageBird system.
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum TypeDetail {
+    /// additional user data specific bytes
+    /// FIXME should not be a string but a proper type include serde impl according to https://en.wikipedia.org/wiki/User_Data_Header but is better to be done in a separate crate
     #[serde(rename = "udh")]
     UserDataHeader(String),
 }
@@ -40,6 +45,9 @@ impl TypeDetail {
     }
 }
 
+/// HashSet of type details
+///
+///
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TypeDetails {
     inner: HashSet<TypeDetail>,
@@ -58,6 +66,7 @@ impl TypeDetails {
         self.inner.insert(td);
     }
 
+    /// iterate over all type details
     pub fn iter(&mut self) -> Iter<TypeDetail> {
         self.inner.iter()
     }

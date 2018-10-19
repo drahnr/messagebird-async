@@ -7,6 +7,9 @@ use chrono;
 use chrono::offset::{FixedOffset, Local, Offset};
 use std::ops::Deref;
 
+/// Timestamp
+///
+/// A timestamp with a fixed offset.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct DateTime(chrono::DateTime<FixedOffset>);
 

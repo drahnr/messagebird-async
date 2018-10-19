@@ -32,13 +32,14 @@ fn main() -> Result<(), MessageBirdError> {
 
     let accesskey = AccessKey::from_env()?;
     let fut = RequestMessageList::new(&q, &accesskey);
-    let fut = fut.and_then(|msgs: MessageList | {
-        info!("{:?}", msgs);
-        futures::future::ok(())
-    }).map_err(|e| {
-        debug!("err: {:?}", e);
-        e
-    });
+    let fut =
+        fut.and_then(|msgs: MessageList| {
+            info!("{:?}", msgs);
+            futures::future::ok(())
+        }).map_err(|e| {
+            debug!("err: {:?}", e);
+            e
+        });
     let mut core = tokio_core::reactor::Core::new().unwrap();
     core.run(fut.map(|_| ()))
 }

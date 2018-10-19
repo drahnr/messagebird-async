@@ -1,5 +1,9 @@
 use super::*;
 
+/// List of Recipients
+///
+/// As returned by a query to the MessageBird API.
+///
 // requires manual Serialize/Deserialize implementation
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Recipients {
