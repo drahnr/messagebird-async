@@ -180,7 +180,6 @@ jobs:
     serial: true
     plan:
     - get: env-glibc
-      trigger: true
     - get: git-tag-resource
       trigger: true
 
