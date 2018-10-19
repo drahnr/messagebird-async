@@ -50,14 +50,12 @@ jobs:
   - name: pr-validate
     build_logs_to_retain: 10
     public: true
+    serial: true
     plan:
-    - aggregate:
-      - get: env-glibc
-        trigger: true
-      - get: env-musl
-        trigger: true
-      - get: git-pull-request-resource
-        trigger: true
+    - get: env-glibc
+    - get: env-musl
+    - get: git-pull-request-resource
+      trigger: true
 
     - aggregate:
       - task: validate-glibc
@@ -107,14 +105,12 @@ jobs:
   - name: master-validate
     build_logs_to_retain: 10
     public: true
+    serial: true
     plan:
-    - aggregate:
-      - get: env-musl
-        trigger: true
-      - get: env-glibc
-        trigger: true
-      - get: git-clone-resource
-        trigger: true
+    - get: env-musl
+    - get: env-glibc
+    - get: git-clone-resource
+      trigger: true
 
     - aggregate:
       - task: validate-glibc
@@ -149,15 +145,44 @@ jobs:
               cargo t
             dir: git-clone-resource
 
+  - name: run-examples
+    build_logs_to_retain: 5
+    public: false
+    serial: true
+    plan:
+    - get: env-glibc
+    - get: git-clone-resource
+      trigger: true
+      passed: [master-validate]
+
+    - task: with-credentials
+      timeout: 15m
+      image: env-glibc
+      config:
+        platform: linux
+        inputs:
+        - name: git-clone-resource
+        run:
+          path: sh
+          args:
+          - -exc
+          - |
+            export SMS_RECIPIENT=((messagebird-test-recipient))
+            export MESSAGEBIRD_ACCESSKEY=((messagebird-async))
+            export RUST_LOG=messagebird_async=debug
+            cargo r --example send 
+            cargo r --example list
+          dir: git-clone-resource
+
   - name: publish-release
     build_logs_to_retain: 5
     public: true
+    serial: true
     plan:
-    - aggregate:
-      - get: env-glibc
-        trigger: true
-      - get: git-tag-resource
-        trigger: true
+    - get: env-glibc
+      trigger: true
+    - get: git-tag-resource
+      trigger: true
 
     - task: crates-io
       timeout: 15m
