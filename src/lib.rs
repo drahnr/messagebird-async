@@ -26,16 +26,23 @@ extern crate log;
 extern crate lazy_static;
 extern crate regex;
 
+#[macro_use]
+extern crate enum_primitive_derive;
+extern crate num_traits;
+
 //#[macro_use]
 extern crate failure;
 
 #[macro_use]
 extern crate failure_derive;
 
-pub mod errors;
-use errors::*;
-
 #[macro_use]
 mod macros;
+
+mod serviceerror;
+use serviceerror::*;
+
+pub mod errors;
+use errors::*;
 
 pub mod sms;
