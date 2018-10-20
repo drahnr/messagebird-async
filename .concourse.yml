@@ -176,7 +176,7 @@ jobs:
 
   - name: publish-release
     build_logs_to_retain: 5
-    public: true
+    public: false
     serial: true
     plan:
     - get: env-glibc
