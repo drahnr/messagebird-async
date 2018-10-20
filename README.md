@@ -79,15 +79,16 @@ Currently the planned features only include to send SMS and query SMS stati.
 - [x] use [`crate serde_plain`](https://docs.rs/serde_plain/0.3.0/serde_plain/) for `trait ToString` and `trait FromStr` for objects which are used in query filters and payload www urlencode
 - [x] future for SMS sending and retrieval based on [hyper.rs](https://hyper.rs)
 - [x] send SMS example using [tokio](https://tokio.rs) as executor
-- [ ] future for listing SMS
-- [ ] listing SMS examples using [tokio](https://tokio.rs) as executor
-- [ ] write proper documentation
+- [x] future for listing SMS
+- [x] listing SMS examples using [tokio](https://tokio.rs) as executor
+- [x] write documentation
 - [ ] future for callback on SMS reception
 - [ ] callback example using [tokio](https://tokio.rs) as executor
+- [ ] convert all service API return errors to typed errors
 
 ## MessageBird APIs
 
-- [ ] [`SMS`](https://rest.messagebird.com/messages) (WIP)
+- [x] [`SMS`](https://rest.messagebird.com/messages) (see above)
 - [ ] [`Contacts`](https://rest.messagebird.com/contacts) (low prio)
 - [ ] [`MMS`](https://rest.messagebird.com/mms) (*)
 - [ ] [`Conversation`](https://developers.messagebird.com/docs/conversations) (*)
@@ -100,11 +101,11 @@ Currently the planned features only include to send SMS and query SMS stati.
 
 MIT or Apache-2.0
 
-If neither of those works for you, feel free to request so via a github issue.
+If neither of those work for you, feel free to request so via a github issue.
 
 ## Donations
 
 Since I am not affiliated with MessageBird in any kind (other than being their customer)
-I'd be delighted if you'd leave a tipp
+I'd be delighted if you'd leave a tipp to keep the automated send/receive routines going.
 
 [![LiberaPayButton](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/drahnr/donate)
