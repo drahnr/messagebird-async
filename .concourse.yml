@@ -25,12 +25,12 @@ resources:
     access_token: ((sirmergealot-github-token))
 
 
-- name: env-musl
-  type: docker-image
-  source:
-    repository: clux/muslrust
-    max_concurrent_downloads: 2
-    max_concurrent_uploads: 2
+#- name: env-musl
+#  type: docker-image
+#  source:
+#    repository: ekidd/rust-musl-builder
+#    max_concurrent_downloads: 2
+#    max_concurrent_uploads: 2
 
 - name: env-glibc
   type: docker-image
@@ -53,8 +53,9 @@ jobs:
     serial: true
     plan:
     - get: env-glibc
-    - get: env-musl
-    - get: git-pull-request-resource
+#    - get: env-musl
+    - get: git-repo
+      resource: git-pull-request-resource
       trigger: true
 
     - aggregate:
@@ -64,31 +65,40 @@ jobs:
         config:
           platform: linux
           inputs:
-          - name: git-clone-resource
+          - name: git-repo
           run:
             path: sh
             args:
             - -exc
             - |
+              export CARGO_HOME="$(pwd)/../cargo"
+              rustc --version --verbose
               cargo b
               cargo t
-            dir: git-clone-resource
+            dir: git-repo
+          caches:
+          - path: cargo
 
-      - task: validate-musl
-        timeout: 15m
-        image: env-musl
-        config:
-          platform: linux
-          inputs:
-          - name: git-clone-resource
-          run:
-            path: sh
-            args:
-            - -exc
-            - |
-              cargo b
-              cargo t
-            dir: git-clone-resource
+ #     - task: validate-musl
+ #       timeout: 15m
+ #       image: env-musl
+ #       config:
+ #         platform: linux
+ #         inputs:
+ #         - name: git-repo
+ #         run:
+ #           user: root
+ #           path: sh
+ #           args:
+ #           - -exc
+ #           - |
+ #             export CARGO_HOME="$(pwd)/../cargo"
+ #             rustc --version --verbose
+ #             cargo b
+ #             cargo t
+ #           dir: git-repo
+ #         caches:
+ #         - path: cargo
 
       on_success:
         put: git-pull-request-resource
@@ -107,9 +117,10 @@ jobs:
     public: true
     serial: true
     plan:
-    - get: env-musl
+  #  - get: env-musl
     - get: env-glibc
-    - get: git-clone-resource
+    - get: git-repo
+      resource: git-clone-resource
       trigger: true
 
     - aggregate:
@@ -119,31 +130,40 @@ jobs:
         config:
           platform: linux
           inputs:
-          - name: git-clone-resource
+          - name: git-repo
           run:
             path: sh
             args:
             - -exc
             - |
+              export CARGO_HOME="$(pwd)/../cargo"
+              rustc --version --verbose
               cargo b
               cargo t
-            dir: git-clone-resource
+            dir: git-repo
+          caches:
+          - path: cargo
 
-      - task: validate-musl
-        timeout: 15m
-        image: env-musl
-        config:
-          platform: linux
-          inputs:
-          - name: git-clone-resource
-          run:
-            path: sh
-            args:
-            - -exc
-            - |
-              cargo b
-              cargo t
-            dir: git-clone-resource
+#      - task: validate-musl
+#        timeout: 15m
+#        image: env-musl
+#        config:
+#          platform: linux
+#          inputs:
+#          - name: git-repo
+#          run:
+#            user: root
+#            path: sh
+#            args:
+#            - -exc
+#            - |
+#              export CARGO_HOME="$(pwd)/../cargo"
+#              rustc --version --verbose
+#              cargo b
+#              cargo t
+#            dir: git-repo
+#          caches:
+#          - path: cargo
 
   - name: run-examples
     build_logs_to_retain: 5
@@ -151,7 +171,8 @@ jobs:
     serial: true
     plan:
     - get: env-glibc
-    - get: git-clone-resource
+    - get: git-repo
+      resource: git-clone-resource
       trigger: true
       passed: [master-validate]
 
@@ -161,18 +182,21 @@ jobs:
       config:
         platform: linux
         inputs:
-        - name: git-clone-resource
+        - name: git-repo
         run:
           path: sh
           args:
           - -exc
           - |
+            export CARGO_HOME="$(pwd)/../cargo"
             export SMS_RECIPIENT=((messagebird-test-recipient))
             export MESSAGEBIRD_ACCESSKEY=((messagebird-async))
             export RUST_LOG=messagebird_async=debug
-            cargo r --example send 
+            cargo r --example send
             cargo r --example list
-          dir: git-clone-resource
+          dir: git-repo
+        caches:
+        - path: cargo
 
   - name: publish-release
     build_logs_to_retain: 5
@@ -180,7 +204,8 @@ jobs:
     serial: true
     plan:
     - get: env-glibc
-    - get: git-tag-resource
+    - get: git-repo
+      resource: git-tag-resource
       trigger: true
 
     - task: crates-io
@@ -189,7 +214,7 @@ jobs:
       config:
         platform: linux
         inputs:
-        - name: git-tag-resource
+        - name: git-repo
         run:
           path: sh
           args:
@@ -198,4 +223,4 @@ jobs:
               cargo login ((crates-io-token))
               cargo publish
 
-          dir: git-tag-resource
+          dir: git-repo
