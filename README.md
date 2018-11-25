@@ -82,7 +82,7 @@ Currently the planned features only include to send SMS and query SMS stati.
 - [x] future for listing SMS
 - [x] listing SMS examples using [tokio](https://tokio.rs) as executor
 - [x] write documentation
-- [ ] future for callback on SMS reception
+- [ ] future for notification callback on SMS reception
 - [ ] callback example using [tokio](https://tokio.rs) as executor
 - [ ] convert all service API return errors to typed errors
 
