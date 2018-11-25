@@ -1,5 +1,7 @@
 use super::*;
 
+use std::ops::Deref;
+
 use num::{FromPrimitive, ToPrimitive};
 use std::str::FromStr;
 
@@ -81,17 +83,23 @@ impl Serialize for ServiceErrorCode {
 }
 
 /// parses a int which is a string to a proper service error code type
+/// 
+/// this is a little shizophrenic considering the common expected duality with `as_str()`
 impl FromStr for ServiceErrorCode {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         s.parse::<u64>()
-            .map_err(|_| MessageBirdError::ParseError)
+            .map_err(|e| {
+                debug!("ServiceErrorCode {:?}", e);
+                MessageBirdError::ParseError
+                })
             .and_then(|x| Self::from_u64(x).ok_or(MessageBirdError::ParseError))
     }
 }
 
 impl ServiceErrorCode {
     #[allow(dead_code)]
+    #[allow(unreachable_patterns)]
     pub fn as_str(&self) -> &str {
         match self {
             ServiceErrorCode::RequestNotAllowed => "Request not allowed",
@@ -120,6 +128,7 @@ pub struct ServiceError {
 }
 
 impl ServiceError {
+    #[allow(unused)]
     pub fn new(code: ServiceErrorCode, description: String, parameter: Option<String>) -> Self {
         Self {
             code,
@@ -132,7 +141,10 @@ impl ServiceError {
 impl FromStr for ServiceError {
     type Err = MessageBirdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_plain::from_str::<Self>(s).map_err(|_e| MessageBirdError::ParseError)
+        serde_plain::from_str::<Self>(s).map_err(|e| {
+            debug!("ServiceError from_str: {:?}", e);
+            MessageBirdError::ParseError
+        })
     }
 }
 
@@ -142,11 +154,59 @@ impl ToString for ServiceError {
     }
 }
 
+
+
+
+/// a collection of service errors
+/// 
+/// mostly needed for literal mapping to json
+/// TODO: use a hand written serialize/deserialize/visitor impl
+/// TODO: to to avoid the addition object
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ServiceErrors {
+    errors: Vec<ServiceError>,
+}
+
+impl Default for ServiceErrors {
+    fn default() -> Self {
+        Self { errors: vec![] }
+    }
+}
+
+impl ServiceErrors {
+    fn new(errors: Vec<ServiceError>) -> Self {
+        Self { errors }
+    }
+}
+
+#[allow(dead_code)]
+impl Deref for ServiceErrors {
+    type Target = Vec<ServiceError>;
+    fn deref(&self) -> &Self::Target {
+        &self.errors
+    }
+}
+
+impl From<Vec<ServiceError>> for ServiceErrors {
+    fn from(errors : Vec<ServiceError>) -> Self {
+        Self {
+            errors
+        }
+    }
+}
+
+
+impl From<ServiceErrors> for Vec<ServiceError> {
+    fn from(errors : ServiceErrors) -> Self {
+        errors.errors
+    }
+}
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use std::ops::Deref;
 
     static RAW_ERRORS: &str = r#"
 {
@@ -160,31 +220,6 @@ mod tests {
 }
 "#;
 
-    #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-    struct Wrapper {
-        errors: Vec<ServiceError>,
-    }
-
-    impl Default for Wrapper {
-        fn default() -> Self {
-            Self { errors: vec![] }
-        }
-    }
-
-    impl Wrapper {
-        fn new(errors: Vec<ServiceError>) -> Self {
-            Self { errors }
-        }
-    }
-
-    #[allow(dead_code)]
-    impl Deref for Wrapper {
-        type Target = Vec<ServiceError>;
-        fn deref(&self) -> &Self::Target {
-            &self.errors
-        }
-    }
-
     lazy_static! {
         static ref ERRVEC: Vec<ServiceError> = {
             let v = vec![ServiceError::new(
@@ -197,6 +232,6 @@ mod tests {
         };
     }
 
-    serde_roundtrip!(serde_service_errors, Wrapper, Wrapper::new(ERRVEC.to_vec()));
-    deser_roundtrip!(deser_service_errors, Wrapper, RAW_ERRORS);
+    serde_roundtrip!(serde_service_errors, ServiceErrors, ServiceErrors::new(ERRVEC.to_vec()));
+    deser_roundtrip!(deser_service_errors, ServiceErrors, RAW_ERRORS);
 }
