@@ -100,7 +100,6 @@ where
                 let status = response.status();
                 debug!("rest status code: {}", status);
 
-                // if status == hyper::StatusCode::OK {
                     futures::future::ok(response)
                 // } else {
                 //     futures::future::err(MessageBirdError::ServiceError {
@@ -111,22 +110,43 @@ where
                 // }
             })
             .and_then(|response: hyper::Response<hyper::Body>| {
+                let status = response.status();
                 let body: hyper::Body = response.into_body();
-                body.concat2().map_err(|_e| MessageBirdError::RequestError)
+                body.concat2().map_err(|_e| MessageBirdError::RequestError).map(move |x|{(status,x)})
                 // returns a hyper::Chunk!
             })
             // use the body after concatenation
-            .and_then(|body| {
+            .and_then(|(status  ,body) : (_ , hyper::Chunk)| {
+
                 debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
-                // try to parse as json with serde_json
-                match serde_json::from_slice::<R>(&body).map_err(|e| {
-                    debug!("Parsing Error Detail: {:?}", e);
-                    MessageBirdError::ParseError}) {
-                    Err(e) => futures::future::err(e),
-                    Ok(x) => {
-                        debug!("Parsed response {:?}", x);
-                        futures::future::ok(x)
+                match status {
+                    hyper::StatusCode::OK => {
+                        // try to parse as json with serde_json
+                        match serde_json::from_slice::<R>(&body)
+                            .map_err(|e| {
+                                        debug!("Failed to parse response body: {:?}", e);
+                                        MessageBirdError::ParseError
+                                    })
+                        {
+                            Err(e) => futures::future::err(e),
+                            Ok(x) => {
+                                debug!("Parsed response {:?}", x);
+                                futures::future::ok(x)
+                            },
+                        }
                     },
+                    _ => {
+                        match serde_json::from_slice::<ServiceErrors>(&body).map_err(|e| {
+                            debug!("Failed to parse response body: {:?}", e);
+                            MessageBirdError::ParseError}) {
+                            Err(e) => futures::future::err(e),
+                            Ok(x) => {
+                                let x=x.into();
+                                debug!("Parsed error response {:?}", x);
+                                futures::future::err(MessageBirdError::ServiceError(x))
+                            },
+                        }
+                    }
                 }
             });
     fut

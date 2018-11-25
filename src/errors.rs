@@ -1,4 +1,5 @@
 // pub type MessageBirdResult<T> = std::result::Result<T, MessageBirdError>;
+use serviceerror::*;
 
 #[derive(Debug, Fail)]
 pub enum MessageBirdError {
@@ -8,12 +9,8 @@ pub enum MessageBirdError {
     #[fail(display = "invalid paramter for type: {}", msg)]
     TypeError { msg: String },
 
-    #[fail(display = "service return code: {}/{}/{:?}", code, description, parameter)]
-    ServiceError {
-        code: u16,
-        description: String,
-        parameter: Option<String>,
-    },
+    #[fail(display = "service return code")]
+    ServiceError(Vec<ServiceError>),
 
     #[fail(display = "parsing failed")]
     ParseError,
