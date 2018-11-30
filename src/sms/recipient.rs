@@ -25,6 +25,13 @@ impl Msisdn {
             })
         }
     }
+
+    /// convert from u64
+    ///
+    /// TODO use TryFrom as soon as stabilized
+    pub fn try_from(raw: u64) -> Result<Self, MessageBirdError> {
+        Msisdn::new(raw)
+    }
 }
 
 impl FromStr for Msisdn {
@@ -92,7 +99,7 @@ impl ToString for Status {
 /// Definition of a recepient, used for querying the status of a SMS.
 /// Contains the deliver status of a message as well as the time of posting
 /// the SMS to the MessageBird API.
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 #[serde(rename_all = "snake_case")]
 pub struct Recipient {
     #[serde(rename = "recipient")]
@@ -110,6 +117,25 @@ impl Recipient {
             status: None,
             status_datetime: None,
         }
+    }
+}
+
+impl From<u64> for Recipient {
+    fn from(raw: u64) -> Self {
+        Recipient::new(raw)
+    }
+}
+
+impl FromStr for Recipient {
+    type Err = MessageBirdError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.replace('"', "");
+        s.parse::<u64>()
+            .and_then(|x: u64| Ok(Recipient::from(x)))
+            .map_err(|e| {
+                debug!("{:?}", e);
+                MessageBirdError::ParseError
+            })
     }
 }
 

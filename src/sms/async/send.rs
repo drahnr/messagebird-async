@@ -1,7 +1,7 @@
 /// Query a list of messages
 ///
 /// Still needs some work and the names are garbage
-use super::*;
+use super::super::*;
 
 use futures::*;
 use hyper;
@@ -11,6 +11,7 @@ use hyper_rustls;
 use std::env;
 use std::fmt;
 use std::marker::PhantomData;
+use std::ops::Deref;
 
 /// API Token Access
 ///
