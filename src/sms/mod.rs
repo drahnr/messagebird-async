@@ -39,11 +39,14 @@ pub use self::recipient::*;
 mod recipients;
 pub use self::recipients::*;
 
-mod future;
-pub use self::future::*;
+mod async;
+pub use self::async::*;
 
 mod typedetails;
 pub use self::typedetails::*;
 
 mod parameter;
 pub use self::parameter::*;
+
+mod notification;
+pub use self::notification::*;

@@ -8,7 +8,7 @@ use regex::Regex;
 
 // TODO impl into() for Originator
 // requires manual Serialize/Deserialize impl
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TelephoneNumber(pub String);
 
 impl TelephoneNumber {
@@ -33,8 +33,15 @@ impl FromStr for TelephoneNumber {
     }
 }
 
+impl From<u64> for TelephoneNumber {
+    //type Err = MessageBirdError;
+    fn from(raw: u64) -> Self {
+        TelephoneNumber(raw.to_string())
+    }
+}
+
 // requires manual Serialize/Deserialize impl
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct AlphaNumeric(pub String);
 
 impl AlphaNumeric {
@@ -63,7 +70,7 @@ impl FromStr for AlphaNumeric {
 ///
 /// Defines the source of a message, which can either be an arbitrary
 /// alphanumeric string or a telephone number
-#[derive(Debug, Serialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(untagged)]
 pub enum Originator {
@@ -95,6 +102,12 @@ impl FromStr for Originator {
                 AlphaNumeric::from_str(s)
                     .and_then(|alphanumeric| Ok(Originator::Other(alphanumeric)))
             })
+    }
+}
+
+impl From<u64> for Originator {
+    fn from(raw: u64) -> Self {
+        Originator::TelephoneNumber(raw.into())
     }
 }
 
