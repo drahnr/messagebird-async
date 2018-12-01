@@ -94,57 +94,42 @@ where
 {
     debug!("request {:?}", request);
     let fut = client
-            .request(request)
-            .map_err(|_e: hyper::Error| MessageBirdError::RequestError)
-            .and_then(|response: hyper::Response<hyper::Body>| {
-                let status = response.status();
-                debug!("rest status code: {}", status);
+        .request(request)
+        .map_err(|_e: hyper::Error| MessageBirdError::RequestError)
+        .and_then(|response: hyper::Response<hyper::Body>| {
+            let status = response.status();
+            debug!("rest status code: {}", status);
 
-                    futures::future::ok(response)
-                // } else {
-                //     futures::future::err(MessageBirdError::ServiceError {
-                //         code: status.as_u16(),
-                //         description : "TODO".to_string(),
-                //         parameter : None,
-                //     })
-                // }
-            })
-            .and_then(|response: hyper::Response<hyper::Body>| {
-                let status = response.status();
-                let body: hyper::Body = response.into_body();
-                body.concat2().map_err(|_e| MessageBirdError::RequestError).map(move |x|{(status,x)})
-                // returns a hyper::Chunk!
-            })
-            // use the body after concatenation
-            .and_then(|(status  ,body) : (_ , hyper::Chunk)| {
-
-                debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
-                match status {
-                    hyper::StatusCode::OK => {
-                        // try to parse as json with serde_json
-                        match serde_json::from_slice::<R>(&body)
-                            .map_err(|e| {
-                                        debug!("Failed to parse response body: {:?}", e);
-                                        MessageBirdError::ParseError
-                                    })
-                        {
-                            Err(e) => futures::future::err(e),
-                            Ok(x) => {
-                                debug!("Parsed response {:?}", x);
-                                futures::future::ok(x)
-                            },
-                        }
-                    },
-                    _ => {
-                        match serde_json::from_slice::<ServiceErrors>(&body).map_err(|e| {
-                            debug!("Failed to parse response body: {:?}", e);
-                            MessageBirdError::ParseError}) {
-                            Err(e) => futures::future::err(e),
-                            Ok(x) => {
-                                let x=x.into();
-                                debug!("Parsed error response {:?}", x);
-                                futures::future::err(MessageBirdError::ServiceError(x))
-                            },
+            futures::future::ok(response)
+            // } else {
+            //     futures::future::err(MessageBirdError::ServiceError {
+            //         code: status.as_u16(),
+            //         description : "TODO".to_string(),
+            //         parameter : None,
+            //     })
+            // }
+        }).and_then(|response: hyper::Response<hyper::Body>| {
+            let status = response.status();
+            let body: hyper::Body = response.into_body();
+            body.concat2()
+                .map_err(|_e| MessageBirdError::RequestError)
+                .map(move |x| (status, x))
+            // returns a hyper::Chunk!
+        })
+        // use the body after concatenation
+        .and_then(|(status, body): (_, hyper::Chunk)| {
+            debug!("response: {:?}", String::from_utf8(body.to_vec()).unwrap());
+            match status {
+                hyper::StatusCode::OK | hyper::StatusCode::CREATED => {
+                    // try to parse as json with serde_json
+                    match serde_json::from_slice::<R>(&body).map_err(|e| {
+                        debug!("Failed to parse response body: {:?}", e);
+                        MessageBirdError::ParseError
+                    }) {
+                        Err(e) => futures::future::err(e),
+                        Ok(x) => {
+                            debug!("Parsed response {:?}", x);
+                            futures::future::ok(x)
                         }
                     }
                 }
@@ -176,14 +161,17 @@ where
                 hyper::header::CONTENT_TYPE,
                 format!("application/x-www-form-urlencoded"),
             );
-            if let Some(body) = parameters.uri().query() {
-                let body = body.to_string();
-                request.header(hyper::header::CONTENT_LENGTH, format!("{}", body.len()));
-                request.body(body.into()).unwrap()
-            } else {
-                request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
-                request.body(hyper::Body::empty()).unwrap()
-            }
+            parameters
+                .uri()
+                .query()
+                .map(|body: &str| {
+                    let body = body.to_string();
+                    request.header(hyper::header::CONTENT_LENGTH, format!("{}", body.len()));
+                    request.body(body.into()).unwrap()
+                }).unwrap_or_else(|| {
+                    request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
+                    request.body(hyper::Body::empty()).unwrap()
+                })
         } else {
             request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
             request.body(hyper::Body::empty()).unwrap()
