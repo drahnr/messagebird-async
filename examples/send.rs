@@ -23,8 +23,7 @@ fn main() -> Result<(), MessageBirdError> {
             PayloadType::Sms,
             Payload::Text("fun".to_string()),
             PayloadEncoding::Auto,
-        )
-        .origin(AlphaNumeric("inbox".to_string()).into())
+        ).origin(AlphaNumeric("inbox".to_string()).into())
         .add_recipient(msisdn.into())
         //.add_recipient(Recipient::new())
         .build();

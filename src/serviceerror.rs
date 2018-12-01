@@ -83,7 +83,7 @@ impl Serialize for ServiceErrorCode {
 }
 
 /// parses a int which is a string to a proper service error code type
-/// 
+///
 /// this is a little shizophrenic considering the common expected duality with `as_str()`
 impl FromStr for ServiceErrorCode {
     type Err = MessageBirdError;
@@ -92,8 +92,7 @@ impl FromStr for ServiceErrorCode {
             .map_err(|e| {
                 debug!("ServiceErrorCode {:?}", e);
                 MessageBirdError::ParseError
-                })
-            .and_then(|x| Self::from_u64(x).ok_or(MessageBirdError::ParseError))
+            }).and_then(|x| Self::from_u64(x).ok_or(MessageBirdError::ParseError))
     }
 }
 
@@ -154,11 +153,8 @@ impl ToString for ServiceError {
     }
 }
 
-
-
-
 /// a collection of service errors
-/// 
+///
 /// mostly needed for literal mapping to json
 /// TODO: use a hand written serialize/deserialize/visitor impl
 /// TODO: to to avoid the addition object
@@ -188,21 +184,16 @@ impl Deref for ServiceErrors {
 }
 
 impl From<Vec<ServiceError>> for ServiceErrors {
-    fn from(errors : Vec<ServiceError>) -> Self {
-        Self {
-            errors
-        }
+    fn from(errors: Vec<ServiceError>) -> Self {
+        Self { errors }
     }
 }
 
-
 impl From<ServiceErrors> for Vec<ServiceError> {
-    fn from(errors : ServiceErrors) -> Self {
+    fn from(errors: ServiceErrors) -> Self {
         errors.errors
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -232,6 +223,10 @@ mod tests {
         };
     }
 
-    serde_roundtrip!(serde_service_errors, ServiceErrors, ServiceErrors::new(ERRVEC.to_vec()));
+    serde_roundtrip!(
+        serde_service_errors,
+        ServiceErrors,
+        ServiceErrors::new(ERRVEC.to_vec())
+    );
     deser_roundtrip!(deser_service_errors, ServiceErrors, RAW_ERRORS);
 }

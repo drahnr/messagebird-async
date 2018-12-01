@@ -32,8 +32,8 @@ fn main() -> Result<(), MessageBirdError> {
 
     let accesskey = AccessKey::from_env()?;
     let fut = RequestMessageList::new(&q, &accesskey);
-    let fut =
-        fut.and_then(|msgs: MessageList| {
+    let fut = fut
+        .and_then(|msgs: MessageList| {
             info!("{:?}", msgs);
             futures::future::ok(())
         }).map_err(|e| {

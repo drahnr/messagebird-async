@@ -95,8 +95,10 @@ where
     debug!("request {:?}", request);
     let fut = client
         .request(request)
-        .map_err(|_e: hyper::Error| MessageBirdError::RequestError)
-        .and_then(|response: hyper::Response<hyper::Body>| {
+        .map_err(|e: hyper::Error| {
+            debug!("request {:?}", e);
+            MessageBirdError::RequestError
+        }).and_then(|response: hyper::Response<hyper::Body>| {
             let status = response.status();
             debug!("rest status code: {}", status);
 
@@ -112,7 +114,10 @@ where
             let status = response.status();
             let body: hyper::Body = response.into_body();
             body.concat2()
-                .map_err(|_e| MessageBirdError::RequestError)
+                .map_err(|e| {
+                    debug!("body concat {:?}", e);
+                    MessageBirdError::RequestError
+                })
                 .map(move |x| (status, x))
             // returns a hyper::Chunk!
         })
@@ -133,7 +138,19 @@ where
                         }
                     }
                 }
-            });
+                _ => match serde_json::from_slice::<ServiceErrors>(&body).map_err(|e| {
+                    debug!("Failed to parse response body: {:?}", e);
+                    MessageBirdError::ParseError
+                }) {
+                    Err(e) => futures::future::err(e),
+                    Ok(service_errors) => {
+                        let service_errors = service_errors.into();
+                        debug!("Parsed error response {:?}", service_errors);
+                        futures::future::err(MessageBirdError::ServiceError(service_errors))
+                    }
+                },
+            }
+        });
     fut
 }
 
