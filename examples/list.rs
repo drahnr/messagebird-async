@@ -36,7 +36,8 @@ fn main() -> Result<(), MessageBirdError> {
         .and_then(|msgs: MessageList| {
             info!("{:?}", msgs);
             futures::future::ok(())
-        }).map_err(|e| {
+        })
+        .map_err(|e| {
             debug!("err: {:?}", e);
             e
         });

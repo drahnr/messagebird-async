@@ -92,7 +92,8 @@ impl FromStr for ServiceErrorCode {
             .map_err(|e| {
                 debug!("ServiceErrorCode {:?}", e);
                 MessageBirdError::ParseError
-            }).and_then(|x| Self::from_u64(x).ok_or(MessageBirdError::ParseError))
+            })
+            .and_then(|x| Self::from_u64(x).ok_or(MessageBirdError::ParseError))
     }
 }
 

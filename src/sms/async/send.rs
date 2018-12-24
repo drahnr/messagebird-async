@@ -99,7 +99,8 @@ where
         .map_err(|e: hyper::Error| {
             debug!("request {:?}", e);
             MessageBirdError::RequestError
-        }).and_then(|response: hyper::Response<hyper::Body>| {
+        })
+        .and_then(|response: hyper::Response<hyper::Body>| {
             let status = response.status();
             debug!("rest status code: {}", status);
 
@@ -111,7 +112,8 @@ where
             //         parameter : None,
             //     })
             // }
-        }).and_then(|response: hyper::Response<hyper::Body>| {
+        })
+        .and_then(|response: hyper::Response<hyper::Body>| {
             let status = response.status();
             let body: hyper::Body = response.into_body();
             body.concat2()
@@ -186,7 +188,8 @@ where
                     let body = body.to_string();
                     request.header(hyper::header::CONTENT_LENGTH, format!("{}", body.len()));
                     request.body(body.into()).unwrap()
-                }).unwrap_or_else(|| {
+                })
+                .unwrap_or_else(|| {
                     request.header(hyper::header::CONTENT_LENGTH, format!("{}", 0));
                     request.body(hyper::Body::empty()).unwrap()
                 })
