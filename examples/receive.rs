@@ -10,22 +10,23 @@ use hyper::client::HttpConnector;
 use hyper::service::service_fn;
 use hyper::{Body, Client, Method, Request, Response, Server, StatusCode};
 
-use std::sync::{Arc,RwLock};
+use std::sync::{Arc, RwLock};
 
 static NOTFOUND: &[u8] = b"Not Found";
-
 
 fn incoming(
     req: Request<Body>,
     _client: &Client<HttpConnector>,
-    latest : &Arc<RwLock<Option<String>>>
+    latest: &Arc<RwLock<Option<String>>>,
 ) -> Box<Future<Item = Response<Body>, Error = hyper::Error> + Send> {
     println!("incoming!");
     let method = req.method();
     let uri = req.uri();
     match (method, uri.path(), uri.query()) {
         (&Method::GET, "/vmn", Some(query)) => {
-            let x = query.parse::<messagebird::sms::NotificationQueryVMN>().expect("Failed to parse");
+            let x = query
+                .parse::<messagebird::sms::NotificationQueryVMN>()
+                .expect("Failed to parse");
 
             let mut guard = latest.write().unwrap();
             *guard = Some(format!("vmn {}", query));
@@ -40,7 +41,9 @@ fn incoming(
             Box::new(future::ok(response))
         }
         (&Method::GET, "/short", Some(query)) | (&Method::GET, "/shortcode", Some(query)) => {
-            let x = query.parse::<messagebird::sms::NotificationQueryShort>().expect("Failed to parse");
+            let x = query
+                .parse::<messagebird::sms::NotificationQueryShort>()
+                .expect("Failed to parse");
 
             let mut guard = latest.write().unwrap();
             *guard = Some(format!("shortcode {}", query));
@@ -81,11 +84,8 @@ fn main() {
 
     let addr = "127.0.0.1:8181".parse().unwrap();
 
-    let latest : Option<String> = None;
-    let latest = Arc::new(
-        RwLock::new(latest)
-        );
-
+    let latest: Option<String> = None;
+    let latest = Arc::new(RwLock::new(latest));
 
     hyper::rt::run(future::lazy(move || {
         let client = Client::new();

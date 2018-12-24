@@ -132,7 +132,8 @@ mod tests {
                 PayloadType::Sms,
                 Payload::Text("fun".to_string()),
                 PayloadEncoding::Auto,
-            ).add_recipient(msisdns[0].into())
+            )
+            .add_recipient(msisdns[0].into())
             .add_recipient(msisdns[1].into())
             .build();
         println!("send obj {:?}", url_params);

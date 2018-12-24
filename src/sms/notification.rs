@@ -31,8 +31,11 @@ pub struct NotificationQueryVMN {
 
 impl FromStr for NotificationQueryVMN {
     type Err = MessageBirdError;
-    fn from_str(query : &str) -> Result<Self, Self::Err> {
-        serde_qs::from_str(query).map_err(|e| {debug!("{:?}", e); MessageBirdError::ParseError})
+    fn from_str(query: &str) -> Result<Self, Self::Err> {
+        serde_qs::from_str(query).map_err(|e| {
+            debug!("{:?}", e);
+            MessageBirdError::ParseError
+        })
     }
 }
 
@@ -50,8 +53,11 @@ pub struct NotificationQueryShort {
 
 impl FromStr for NotificationQueryShort {
     type Err = MessageBirdError;
-    fn from_str(query : &str) -> Result<Self, Self::Err> {
-        serde_qs::from_str(query).map_err(|e| {debug!("{:?}", e); MessageBirdError::ParseError})
+    fn from_str(query: &str) -> Result<Self, Self::Err> {
+        serde_qs::from_str(query).map_err(|e| {
+            debug!("{:?}", e);
+            MessageBirdError::ParseError
+        })
     }
 }
 

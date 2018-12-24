@@ -52,7 +52,8 @@ impl FromStr for DateTime {
             .or_else(|_err| {
                 chrono::naive::NaiveDateTime::parse_from_str(s, "%Y%m%d%H%M%S")
                     .and_then(|naive| Ok(chrono::DateTime::from_utc(naive, FixedOffset::west(0))))
-            }).map(|datetime| DateTime(datetime))
+            })
+            .map(|datetime| DateTime(datetime))
             .map_err(|_e| MessageBirdError::FormatError {
                 chunk: "Unexpected or invalid time format".to_string(),
             })
