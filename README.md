@@ -82,13 +82,15 @@ Currently the planned features only include to send SMS and query SMS stati.
 - [x] future for listing SMS
 - [x] listing SMS examples using [tokio](https://tokio.rs) as executor
 - [x] write documentation
-- [ ] future for notification callback on SMS reception
-- [ ] callback example using [tokio](https://tokio.rs) as executor
-- [ ] convert all service API return errors to typed errors
+- [x] future for notification callback on SMS reception
+- [x] callback example using [hyper](https://hyper.rs) (and thus imlicitly [tokio](https://tokio.rs)) as executor
+- [x] convert all service API return errors to typed errors
+- [ ] improve error information content
+- [ ] create sms callback notification test based on the receive example running on [clever cloud](clever-cloud.com) (the creators of [sozu](https://www.sozu.io/))
 
 ## MessageBird APIs
 
-- [x] [`SMS`](https://rest.messagebird.com/messages) (see above)
+- [x] [`SMS`](https://rest.messagebird.com/messages)
 - [ ] [`Contacts`](https://rest.messagebird.com/contacts) (low prio)
 - [ ] [`MMS`](https://rest.messagebird.com/mms) (*)
 - [ ] [`Conversation`](https://developers.messagebird.com/docs/conversations) (*)
