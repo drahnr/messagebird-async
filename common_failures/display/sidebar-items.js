@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DisplayCausesAndBacktrace","A wrapper which prints a human-readable list of the causes of an error, plus a backtrace if present."]],"trait":[["DisplayCausesAndBacktraceExt","Extensions to standard `failure::Error` trait."]]});

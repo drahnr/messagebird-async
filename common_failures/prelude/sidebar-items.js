@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["ResultExt","Extension methods for `Result`."]]});
