@@ -14,7 +14,7 @@ resources:
 - name: git-tag-resource
   type: git
   source:
-    tag_filter: "v[0-9\\.-]*(alpha|beta|rc)?\\.[0-9]+"
+    tag_filter: "v[0-9]*"
     branch: master
     uri: https://github.com/drahnr/messagebird-async.git
 
