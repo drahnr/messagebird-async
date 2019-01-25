@@ -256,14 +256,14 @@ jobs:
               cat ./.git/ref > "${RI_TAG_FILE}"
               cat "${RI_TAG_FILE}"
 
-              # construct scalpel-v1.2.3
-              echo "scalpel-$(cat ./.git/ref)" > "${RI_NAME_FILE}"
+              # construct mesagebird_async-v1.2.3
+              echo "mesagebird_async-$(cat ./.git/ref)" > "${RI_NAME_FILE}"
               cat "${RI_NAME_FILE}"
 
               # TODO cross compile to windows
               # $ cargo build --release --target x86_64-pc-windows-gnu
               # using the fedora provided precompiled static libs
-              # and publish target/x86_64-pc-windows-gnu/release/scalpel.exe
+              # and publish target/x86_64-pc-windows-gnu/release/mesagebird_async.exe
               # TODO build for more OSes, such as fuchsia and BSD platforms
               mkdir -pv "${RI_ARTIFACTS_DIR}"
               for TARGET in x86_64-unknown-linux-gnu ; do
@@ -286,4 +286,5 @@ jobs:
         tag: release-info/TAG
         commitish: release-info/COMMITISH
         globs:
-        - release-info/artifacts/*
+        - release-info/artifacts/x86_64-unknown-linux-gnu/*
+    # TODO create windows release
