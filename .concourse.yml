@@ -24,6 +24,13 @@ resources:
     repo: drahnr/messagebird-async
     access_token: ((sirmergealot-github-token))
 
+- name: github-release
+  type: github-release
+  source:
+    owner: drahnr
+    access_token: ((sirmergealot-github-token))
+    repository:  messagebird-async
+
 
 #- name: env-musl
 #  type: docker-image
@@ -54,7 +61,7 @@ jobs:
     plan:
     - get: env-glibc
 #    - get: env-musl
-    - get: git-repo
+    - get: git-pull-request
       resource: git-pull-request-resource
       trigger: true
 
@@ -65,7 +72,7 @@ jobs:
         config:
           platform: linux
           inputs:
-          - name: git-repo
+          - name: git-pull-request
           run:
             path: sh
             args:
@@ -75,7 +82,7 @@ jobs:
               rustc --version --verbose
               cargo b
               cargo t
-            dir: git-repo
+            dir: git-pull-request
           caches:
           - path: cargo
 
@@ -103,13 +110,15 @@ jobs:
       on_success:
         put: git-pull-request-resource
         params:
-          path: git-pull-request-resource
+          path: git-pull-request
+          context: basic
           status: success
 
       on_failure:
         put: git-pull-request-resource
         params:
-          path: git-pull-request-resource
+          path: git-pull-request
+          context: basic
           status: failure
 
   - name: master-validate
@@ -194,14 +203,16 @@ jobs:
             export RUST_LOG=messagebird_async=debug
             cargo r --example send
             cargo r --example list
-            cargo r --example receive &
-            curl -X GET 'http://127.0.0.1:8181/vmn?recipient=31642500190&originator=31612345678&body=This+is+an+incoming+message&createdDatetime=2016-05-03T14:26:57+00:00'
-            curl -X GET 'http://127.0.0.1:8181/short?mid=123456789&shortcode=1008&keyword=fun&originator=31612345678&operator=20401&message=This+is+an+incoming+message&receive_datetime=20160503142657'
+            # TODO use the service launcher
+            # cargo r --example receive &
+            # curl -X GET 'http://127.0.0.1:8181/vmn?recipient=31642500190&originator=31612345678&body=This+is+an+incoming+message&createdDatetime=2016-05-03T14:26:57+00:00'
+            # curl -X GET 'http://127.0.0.1:8181/short?mid=123456789&shortcode=1008&keyword=fun&originator=31612345678&operator=20401&message=This+is+an+incoming+message&receive_datetime=20160503142657'
           dir: git-repo
         caches:
         - path: cargo
 
-  - name: publish-release
+
+  - name: publish-github-release
     build_logs_to_retain: 5
     public: false
     serial: true
@@ -211,19 +222,69 @@ jobs:
       resource: git-tag-resource
       trigger: true
 
-    - task: crates-io
+    - task: create-github-release
       timeout: 15m
       image: env-glibc
       config:
         platform: linux
         inputs:
         - name: git-repo
+        outputs:
+        - name: release-info
+        caches:
+        - path: cargo
         run:
           path: sh
           args:
             - -exc
             - |
-              cargo login ((crates-io-token))
-              cargo publish
+              export CARGO_HOME="$(pwd)/../cargo"
 
+              mkdir -p "../release-info"
+              export RI_BASE_DIR="../release-info"
+              export RI_ARTIFACTS_DIR="${RI_BASE_DIR}/artifacts"
+              mkdir -p "${RI_ARTIFACTS_DIR}"
+              export RI_TAG_FILE="${RI_BASE_DIR}/TAG"
+              export RI_COMMITISH_FILE="${RI_BASE_DIR}/COMMITISH"
+              export RI_NAME_FILE="${RI_BASE_DIR}/NAME"
+
+              git rev-parse HEAD > "${RI_COMMITISH_FILE}"
+              #git log -n 1 --format="%h" HEAD > "../${RI_COMMITISH_FILE}"
+              cat "${RI_COMMITISH_FILE}"
+
+              # the v-prefixed version
+              cat ./.git/ref > "${RI_TAG_FILE}"
+              cat "${RI_TAG_FILE}"
+
+              # construct mesagebird_async-v1.2.3
+              echo "mesagebird_async-$(cat ./.git/ref)" > "${RI_NAME_FILE}"
+              cat "${RI_NAME_FILE}"
+
+              # TODO cross compile to windows
+              # $ cargo build --release --target x86_64-pc-windows-gnu
+              # using the fedora provided precompiled static libs
+              # and publish target/x86_64-pc-windows-gnu/release/mesagebird_async.exe
+              # TODO build for more OSes, such as fuchsia and BSD platforms
+              mkdir -pv "${RI_ARTIFACTS_DIR}"
+              for TARGET in x86_64-unknown-linux-gnu ; do
+                echo "Prepping ${TARGET} ..."
+                mkdir -pv "${RI_ARTIFACTS_DIR}/${TARGET}"
+                cargo build --release --target "${TARGET}"
+                cp -vf "target/${TARGET}/release/libmessagebird_async.rlib" "${RI_ARTIFACTS_DIR}/${TARGET}/libmessagebird_async.a"
+                for ARTIFACT in list send receive; do
+                  cargo build --release --target "${TARGET}" --example ${ARTIFACT}
+                  cp -vf "target/${TARGET}/release/examples/${ARTIFACT}" "${RI_ARTIFACTS_DIR}/${TARGET}/messagebird-${ARTIFACT}";
+                done
+                echo "Prepped ${TARGET} ."
+                echo ""
+              done
           dir: git-repo
+
+    - put: github-release
+      params:
+        name: release-info/NAME
+        tag: release-info/TAG
+        commitish: release-info/COMMITISH
+        globs:
+        - release-info/artifacts/x86_64-unknown-linux-gnu/*
+    # TODO create windows release
