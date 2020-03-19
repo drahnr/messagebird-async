@@ -8,7 +8,7 @@ use chrono;
 use chrono::offset::{FixedOffset, Local, Offset};
 use std::ops::Deref;
 
-use errors::*;
+use crate::errors::*;
 
 /// Timestamp
 ///

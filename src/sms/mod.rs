@@ -39,8 +39,8 @@ pub use self::recipient::*;
 mod recipients;
 pub use self::recipients::*;
 
-mod async;
-pub use self::async::*;
+mod r#async;
+pub use self::r#async::*;
 
 mod typedetails;
 pub use self::typedetails::*;

@@ -41,9 +41,9 @@ extern crate failure_derive;
 mod macros;
 
 mod serviceerror;
-use serviceerror::*;
+use crate::serviceerror::*;
 
 pub mod errors;
-use errors::*;
+use crate::errors::*;
 
 pub mod sms;

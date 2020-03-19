@@ -89,7 +89,7 @@ mod test {
     }
     mod short {
         use super::*;
-        use sms::DateTime;
+        use crate::sms::DateTime;
 
         static RAW: &str = r#"http://your-own.url/script?mid=123456789&shortcode=1008&keyword=MESSAGEBIRD&originator=31612345678&operator=20401&message=This+is+an+incoming+message&receive_datetime=20160503142657"#;
         #[test]

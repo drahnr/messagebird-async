@@ -18,7 +18,7 @@ fn incoming(
     req: Request<Body>,
     _client: &Client<HttpConnector>,
     latest: &Arc<RwLock<Option<String>>>,
-) -> Box<Future<Item = Response<Body>, Error = hyper::Error> + Send> {
+) -> Box<dyn Future<Item = Response<Body>, Error = hyper::Error> + Send> {
     println!("incoming!");
     let method = req.method();
     let uri = req.uri();

@@ -71,7 +71,7 @@ pub type RequestSend = Request<parameter::send::SendParameters, Message>;
 /// Should not be used!
 /// Use `RequestMessageList`,`RequestView`,`RequestSend` instead!
 pub struct Request<T, R> {
-    future: Box<Future<Item = R, Error = MessageBirdError>>,
+    future: Box<dyn Future<Item = R, Error = MessageBirdError>>,
     phantom: PhantomData<T>,
 }
 
@@ -199,6 +199,7 @@ where
         };
 
         let future = request_future_with_json_response::<R>(&mut client, request);
+
         // TODO avoid this boxing if possible
         let future = Box::new(future);
         Self {

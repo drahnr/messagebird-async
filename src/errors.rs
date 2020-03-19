@@ -1,5 +1,5 @@
 // pub type MessageBirdResult<T> = std::result::Result<T, MessageBirdError>;
-use serviceerror::*;
+use crate::serviceerror::*;
 
 #[derive(Debug, Fail)]
 pub enum MessageBirdError {

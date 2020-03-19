@@ -36,7 +36,7 @@ macro_rules! deser_roundtrip {
             // remove all whitespace and linebreaks or the resulting
             // json from serialization will not be equal due to the missing
             // spaces/linebreaks
-            let obj_json = ::macros::RE.replace_all(obj_json, regex::NoExpand(""));
+            let obj_json = crate::macros::RE.replace_all(obj_json, regex::NoExpand(""));
 
             println!("json original = {}", obj_json);
             let obj: $ty =
