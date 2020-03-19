@@ -1,6 +1,6 @@
 [package]
 name = "messagebird-async"
-version = "0.4.1-alpha.0"
+version = "0.5.0"
 authors = ["Bernhard Schuster <bernhard@ahoi.io>"]
 license = "MIT OR Apache-2.0"
 description = "Wrapper around the message bird SMS API"
